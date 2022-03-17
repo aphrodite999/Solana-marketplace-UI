@@ -1,0 +1,41 @@
+.stepper-input-label {
+  position: absolute;
+  padding: 0.2rem 0.4rem;
+  z-index: 3;
+  top: 0;
+  left: 1rem;
+  background: black;
+
+  transform: translate(0, -50%);
+}
+
+.stepper-input-char-limit {
+  position: absolute;
+  padding: 0.2rem 0.4rem;
+  z-index: 2;
+  top: 0;
+  right: 1rem;
+  background: black;
+
+  transform: translate(0, -50%);
+}
+
+.stepper-input {
+  background: transparent;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #3c3c3c;
+
+  transition: all 1s ease-in-out;
+}
+
+.stepper-input:-webkit-autofill,
+.stepper-input:-webkit-autofill:hover,
+.stepper-input:-webkit-autofill:focus,
+.stepper-input:-webkit-autofill:active,
+.stepper-input:-internal-autofill-previewed,
+.stepper-input:-internal-autofill-selected {
+  transition: background-color 5000s ease-in-out 0s;
+  -webkit-text-fill-color: white !important;
+  color: white;
+}
