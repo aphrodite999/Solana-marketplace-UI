@@ -1,0 +1,106 @@
+.flex-1{
+
+    flex:none !important;
+}
+  .badge-red {
+    padding: 3px 6px;
+    font-size: 9px;
+    letter-spacing: 1px;
+    border-radius: 15px;
+    color: #ffffff;
+    background: #d63030;
+  }
+  .badge-gray {
+    padding: 3px 6px;
+    font-size: 9px;
+    letter-spacing: 1px;
+    border-radius: 15px;
+    color: #ffffff;
+    background: black;
+  }
+  .badge-yellow {
+    padding: 3px 6px;
+    font-size: 9px;
+    letter-spacing: 1px;
+    border-radius: 15px;
+    color: #000000;
+    background: #ffd331;
+  }
+
+  .sidebar-btn-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    }
+    .sidebar-btn {
+        padding: 1px 15px;
+        background: rgba(255, 255, 255, 0.05)!important;
+        color: #adadad;
+        text-decoration: none;
+        margin: 10px auto;
+        height: 30px;
+        display: block;
+        align-items: center;
+        justify-content: center;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        width: 120px;
+    }
+    .sidebar-btn span {
+        margin-left: 5px;
+        font-size: 13px;
+        background: rgba(255, 255, 255, 0.05);
+        color: #adadad;
+        text-decoration: none;
+        border: none;
+        display: block;
+    }
+    .sidebar-btn:hover {
+        color: #d8d8d8;
+    }
+
+    .sidebar-header1 {
+        font-size: 24px;
+        font-weight: bold;
+        color: white;
+    }
+    .sidebar-header2 {
+        font-weight: bold;
+        font-size: 12px;
+        letter-spacing: 1px;
+        color: grey;
+        text-align: center;
+    }
+
+    .sidebar-header3 {
+        font-size: 16px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        color: white;
+    }
+
+    .grey-status {
+        background-color: #111111;
+        color: white;
+        padding: 0 10px;
+    }
+
+    .pro-sidebar {
+        
+        border-right: solid 1px #4E957C;
+        background-color: black;
+        width: 270px;
+        min-width: 270px;
+        text-align: left;
+        z-index: 0;
+        height: initial;
+    }
+
+    .pro-sidebar-content {
+        background-color: black;
+    }
+
+    .pro-sidebar > .pro-sidebar-inner {
+        background-color: black!important;
+    }

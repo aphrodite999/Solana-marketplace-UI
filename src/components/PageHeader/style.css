@@ -1,0 +1,44 @@
+
+
+.active {
+    color: #728E4A;
+}
+
+.invalid {
+    color: #CBB46B;
+}
+
+.rejected {
+    color: #8A483A;
+}
+
+.canceled {
+    color: grey;
+}
+
+.pagination {
+    color: #818181;
+    
+}
+
+.page-link {
+    border: 1px solid grey!important;
+    color: #818181!important;
+    padding: 6px 12px!important;
+    margin: 10px!important;
+    border-radius: 4px!important;
+    background-color: #171717!important;
+}
+
+.page-link:hover {
+    background-color: #111111!important;
+}
+
+label {
+    margin: auto;
+    width: 250px;
+}
+
+.disabled {
+    pointer-events: none;
+}

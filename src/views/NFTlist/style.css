@@ -1,0 +1,165 @@
+
+
+.NFT-name {
+    color: white;
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.NFT-collection {
+    color: #818181;
+    margin-bottom: 20px;
+}
+
+.divider {
+    border-top: 1px solid #818181;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.data-row {
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 12px;
+}
+
+.about {
+    font-size: 16px;
+}
+
+.NFT-verify {
+    background-color: transparent;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 20px;
+    color: #86CDFC;
+    border: 1px solid #86CDFC;
+}
+
+.fab-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.fab-icons {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+}
+
+.cur-price {
+    color: #818181;
+    justify-content: start;
+}
+
+.price {
+    font-size: 32px;
+}
+
+.btn-group {
+    display: flex;
+    justify-content: space-between;
+    margin: 30px 0;
+}
+
+.btn-setting {
+    color: white;
+    border-radius: 8px;
+    width: 30%;
+    padding: 15px;
+}
+
+.attribute {
+    color: #818181;
+    margin-bottom: 40px;
+}
+
+.attributes-title {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+}
+
+.attribute-group {
+    margin: 20px;
+}
+
+.attr {
+    padding: 10px;
+    color: #818181;
+    border-radius: 8px;
+    border: 1px solid #818181;
+    width: 30%;
+    margin: 5px;
+}
+
+.search-btn {
+    background-color: #717171;
+    color: white;
+    border-radius: 8px;
+    padding-left: 20px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    height: 40px;
+    width: 100%;
+}
+
+.offer-info {
+    color: white;
+    margin: 20px 0;
+    font-size: 20px;
+}
+
+
+.offer-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.offer-detail {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+.offer-detail p {
+    margin: 20px 0;
+}
+
+.sales-info {
+    color: #818181;
+    margin: 15px 0;
+}
+
+.sales-title {
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 24px;
+}
+
+.sales-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sales-detail {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+}
+
+
+.sales-detail p {
+    margin: 20px 0;
+}

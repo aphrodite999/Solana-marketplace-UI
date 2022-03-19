@@ -23,6 +23,8 @@ import {
   ResourceList,
   SearchResultsView,
   AuthenticateView,
+  BidState,
+  NFTList
 } from "./views"
 import { NotFoundView } from "./views/404"
 import { FeedbackView } from "./views/feedback"
@@ -214,6 +216,16 @@ function App() {
                                       exact
                                       path={`${ROUTES.SUPPORT}/:slug`}
                                       children={<ResourceView />}
+                                    />
+                                    <Route
+                                      exact
+                                      path={ROUTES.BID}
+                                      children={<BidState />}
+                                    />
+                                    <Route
+                                      exact
+                                      path={ROUTES.LIST}
+                                      children={<NFTList />}
                                     />
                                     <Route component={NotFoundView} />
                                     <Route

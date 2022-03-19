@@ -9,3 +9,5 @@ export { ResourceList } from "./resourceList";
 export { ResourceView } from "./resource";
 export { SearchResultsView } from "./search-results";
 export { AuthenticateView } from "./authenticate";
+export { BidState } from "./bidstate";
+export { NFTList } from "./NFTlist"
