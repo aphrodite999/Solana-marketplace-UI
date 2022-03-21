@@ -2,11 +2,13 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { RefreshIcon } from "@heroicons/react/outline";
-import SearchIcon from '@material-ui/icons/Search';
-import InputBase from '@material-ui/core/InputBase';
+// import SearchIcon from '@material-ui/icons/Search';
+// import InputBase from '@material-ui/core/InputBase';
 // import { DropdownMenu, MenuItem } from 'react-bootstrap-dropdown-menu';
 import Dropdown from 'react-bootstrap/Dropdown'
+import InputGroup from 'react-bootstrap/InputGroup'
 import 'bootstrap/dist/css/bootstrap.css';
+import 'font-awesome/css/font-awesome.min.css';
 
 
 
@@ -45,13 +47,12 @@ const BidStateTable = () => {
         </button>
         <div className="search">
           <div className="searchIcon">
-            <SearchIcon />
+            <i className = "fa fa-search"></i>
           </div>
-          <InputBase
+          <input
             placeholder="Search…"
-            className={"inputRoot, inputInput"}
+            className={"inputRoot, inputInput, search-custom"}
             onChange={changeKeyword}
-            inputProps={{ 'aria-label': 'search' }}
           />
         </div>
       </div>
