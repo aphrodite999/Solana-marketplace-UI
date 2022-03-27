@@ -16,6 +16,8 @@ import {
   ThumbDownIcon,
 } from "@heroicons/react/outline"
 import { ReactComponent as VerifiedCircle } from "../../assets/icons/user-verified.svg"
+import { StyledSelect } from "../StyledSelect";
+
 // @ts-ignore
 import { IKImage } from "imagekitio-react"
 import { HTMLContent } from "../NftTypes"
@@ -48,6 +50,7 @@ import {
   cancelSellTx,
   lowerPrice,
 } from "../../contracts/direct-sell"
+import { initDutchAuctionTx,cancelDutchAuctionTx, buyAuctionTx } from "../../contracts/dutch-auction";
 import {
   buyOfferTx as buyOfferTxEscrow,
   sellTx as sellTxEscrow,
@@ -76,6 +79,7 @@ import { Attributes } from "../Attributes"
 import { NFTDetailsAccordion } from "../NFTdetailsAccordion"
 import { NFTDescriptionAccordion } from "../NftDescriptionAccordion"
 import { Link, useHistory, useParams } from "react-router-dom"
+import {DutchCountdown} from "../DutchCountdown"
 
 import {
   useTooltipState,
@@ -88,6 +92,9 @@ import {
   DIRECT_SELL_CONTRACT_ID,
   DIRECT_SELL_TAX_ID,
   DIRECT_SELL_TAX_AMOUNT,
+  DUTCH_AUCTION_CONTRACT_ID,
+  DUTCH_AUCTION_TAX_ID,
+  DUTCH_AUCTION_TAX_AMOUNT
 } from "../../constants/contract_id"
 import { DomainName, getUserDomains } from "../../utils/name-service"
 import { getDomainList } from "../../utils/getDomainList"
@@ -156,17 +163,33 @@ export const NftDetails: React.FC<NftDetailsProps> = ({
   isVerified,
   isDerivative
 }) => {
-  const { wallet } = useWallet()
-  const connection = useConnection()
-  const { endpoint } = useConnectionConfig()
-  const [displayCopyBanner, setDisplayCopyBanner] = useState(false)
-  const [buttonLoading, setButtonLoading] = useState(false)
-  const [isNoticeLoading, setIsNoticeLoading] = useState(false)
-  const [notice, setNotice] = useState("")
-  const [offersByOwner, setOffersByOwner] = useState<[]>([])
-  const [listingPrice, handleListingPriceChange] = useInputState(0)
-  const [tokensUnlisted, setTokensUnlisted] = useState(0)
-  const [tokensAmount, setTokensAmount] = useState(0)
+  const { wallet } = useWallet();
+  const connection = useConnection();
+  const { endpoint } = useConnectionConfig();
+  const [displayCopyBanner, setDisplayCopyBanner] = useState(false);
+  const [buttonLoading, setButtonLoading] = useState(false);
+  const [isNoticeLoading, setIsNoticeLoading] = useState(false);
+  const [notice, setNotice] = useState("");
+
+  const [listingNotice, setListingNotice] = useState("");
+  const [listingPrice, handleListingPriceChange] = useInputState(0);
+  const [dutchStartPrice, handleDutchStartPriceChange] = useInputState(0);
+  const [dutchReservePrice, handleDutchReservePriceChange] = useInputState(0);
+  const [dutchDuration, setDutchDuration] = useState('');
+  const [dutchDurationSeconds, setDutchDurationSeconds] = useState('');
+
+
+  const [dutchCustomDuration, setDutchCustomDuration] = useState(0);
+  const [dutchCustomDurationDays, handleDutchCustomDurationDaysChange] = useInputState(0);
+  const [dutchCustomDurationHours, handleDutchCustomDurationHoursChange] = useInputState(0);
+
+  const [dutchDurationCustomInterval, setDutchDurationCustomInterval] = useState(0);
+  const [dutchDurationCustomIntervalHours, handleDutchDurationCustomIntervalHoursChange] = useInputState(0);
+  const [dutchDurationCustomIntervalMins, handleDutchDurationCustomIntervalMinsChange] = useInputState(0);
+  const [dutchIntervalCustomPrice, handleDutchIntervalCustomPriceChange] = useInputState(0);
+  const [offersByOwner, setOffersByOwner] = useState<[]>([]);
+  const [tokensUnlisted, setTokensUnlisted] = useState(0);
+  const [tokensAmount, setTokensAmount] = useState(0);
   const {
     listedMintsFromEscrow,
     setListedMintsFromEscrow,
@@ -174,10 +197,11 @@ export const NftDetails: React.FC<NftDetailsProps> = ({
     setMintsInWalletUnlisted,
     listedMintsFromDirectSell,
     setListedMintsFromDirectSell,
-  } = useUserAccounts()
-  const { isVerifeyed, metadata, mint, escrowPubkeyStr, price } = nftData
-  const audio: IAudioContext = useContext(AudioContext)
-  const history = useHistory()
+  } = useUserAccounts();
+  const audio: IAudioContext = useContext(AudioContext);
+  const history = useHistory();
+  const { isVerifeyed, metadata, mint, escrowPubkeyStr, price } = nftData;
+  const timeLeftonPrice =  nftData.interval - ((Math.floor(Date.now()/1000) - nftData.startingTs) % nftData.interval);
 
   let collectionMeta
   try {
@@ -264,11 +288,29 @@ export const NftDetails: React.FC<NftDetailsProps> = ({
       ? `You've successfully unlisted ${name}. Please allow some time for the changes to be reflected in the listing and in your wallet.`
       : `You've successfully bought ${name} for ${price} SOL. Please allow some time for the changes to be reflected in the listing and in your wallet.`
 
-  const pageTitle = !isListed
-    ? `List ${name}`
-    : isOwnedByWallet
-    ? `Unlist ${name}`
-    : `Buy ${name}`
+  // const pageTitle = !isListed ? `List ${name}` : isOwnedByWallet ? `Unlist ${name}` : `Buy ${name}`;
+  const pageTitle = `${name}`;
+
+  useEffect(() => {
+    const customDuration = (dutchCustomDurationDays * 24 * 60 * 60) + (dutchCustomDurationHours * 60 * 60);
+    setDutchCustomDuration( customDuration )
+  },[dutchCustomDurationDays, dutchCustomDurationHours])
+
+  useEffect(() => {
+    const customInterval = (dutchDurationCustomIntervalHours * 60 * 60) + (dutchDurationCustomIntervalMins * 60)
+    setDutchDurationCustomInterval( customInterval )
+  },[dutchDurationCustomIntervalHours, dutchDurationCustomIntervalMins])
+
+
+  useEffect(() => {
+    (async () => {
+      if (nftData?.owner) {
+        setDomainNames(await getUserDomains(connection, toPublicKey(nftData?.owner)));
+      }
+    })();
+  }, [nftData?.owner, connection]);
+
+
 
   const accountByMint = useAccountByMint(mint)
   const search = window.location.search
@@ -279,9 +321,11 @@ export const NftDetails: React.FC<NftDetailsProps> = ({
 
   useEffect(() => {
     if (wallet?.publicKey && accountByMint && accountByMint.info) {
+      console.log(accountByMint.info)
       setIsOwnedByWallet(
-        accountByMint.info.owner.toString() == wallet.publicKey.toString()
+        accountByMint.info.amount.toNumber() == 1 && accountByMint.info.owner.toString() == wallet.publicKey.toString()
       )
+      console.log(accountByMint.info.owner.toString() == wallet.publicKey.toString());
     }
     if (
       nftData.initializerPubkey &&
@@ -289,6 +333,8 @@ export const NftDetails: React.FC<NftDetailsProps> = ({
       wallet?.publicKey.toString() != nftData.initializerPubkey
     ) {
       setIsOwnedByWallet(false)
+      console.log("not owned by wallet");
+
     }
   }, [wallet?.publicKey, accountByMint])
 
@@ -402,18 +448,68 @@ export const NftDetails: React.FC<NftDetailsProps> = ({
   }, [nftData])
 
   useEffect(() => {
+    if( dutchReservePrice > 0 && dutchStartPrice > 0 && dutchReservePrice > dutchStartPrice ) {
+      setListingNotice("Starting price must be higher than reserve price.");
+    } else {
+      setListingNotice("");
+    }
+  }, [dutchReservePrice, dutchStartPrice])
+
+  useEffect(() => {
+  if(dutchDuration=="custom"){
+    if(dutchCustomDurationDays % 1 != 0 || dutchCustomDurationHours % 1 != 0 ) {
+      setListingNotice("Invalid Input. No decimals allowed");
+    } else {
+      setListingNotice("");
+    }}
+  }, [dutchCustomDurationDays, dutchCustomDurationHours,dutchStartPrice,dutchReservePrice])
+
+  useEffect(() => {
+  if(dutchDuration=="advanced"){
+    if(dutchDurationCustomIntervalHours % 1 != 0 || dutchDurationCustomIntervalMins % 1 != 0 ) {
+      setListingNotice("Invalid Input. No decimals allowed");
+    } else {
+      setListingNotice("");
+    }
+    const priceString = dutchIntervalCustomPrice.toString();
+    if(priceString.split('.')[1] && priceString.split('.')[1].length > 2) {
+      setListingNotice("Too may decimals in Price Decrement");
+    } else {
+      setListingNotice("");
+    }
+
+  }
+
+}, [dutchDurationCustomIntervalHours, dutchDurationCustomIntervalMins,dutchStartPrice,dutchReservePrice,dutchIntervalCustomPrice])
+
+  useEffect(() => {
     if (!mintPrice && nftData.price) {
       setMintPrice(nftData.price)
     }
   }, [mintPrice])
 
   useEffect(() => {
-    if (isToken && nftData) {
-      if (offersByOwner) {
-        if (
-          !offersByOwner.length &&
-          (!pk || pk === "undefined" || !isTokenListed || fromWallet)
-        ) {
+    ;(async () => {
+      setIsSalesHistoryLoading(true)
+      let fullSalesHistory: {
+        sales_history: SaleData[]
+      }
+      try {
+        fullSalesHistory = await (
+          await fetch(
+            `${BASE_URL_COLLECTION_SALES_HISTORY}?&mint=${mint}&type=SALE`
+          )
+        ).json()
+        setSalesHistory(fullSalesHistory?.sales_history || [])
+      } catch (error) {}
+      setIsSalesHistoryLoading(false)
+    })()
+  }, [mint, collectionName])
+
+useEffect(() => {
+    if( isToken && nftData ) {
+      if( offersByOwner ) {
+        if( !offersByOwner.length && (!pk || pk === 'undefined' || !isTokenListed || fromWallet)) {
           setIsTokenWithoutPK(true)
         }
       }
@@ -461,6 +557,48 @@ export const NftDetails: React.FC<NftDetailsProps> = ({
       refreshItem()
     }, 5000)
   }
+
+  async function listOfferDutch(): Promise<void> {
+    setButtonLoading(true);
+    const priceMargin = dutchStartPrice - dutchReservePrice;
+    const interval = (
+      dutchDuration=="1-day" ? 300 ://5 mins decrement intervals for 1 day auctions :
+      dutchDuration=="3-day" ? 600 ://10 mins decrement intervals for 3 day auctions:
+      dutchDuration=="7-day" || dutchDuration=="custom" ? 1800 ://30 mins decrement intervals for 7 day & custom duration auctions:
+      dutchDuration=="advanced" ? dutchDurationCustomInterval : 0
+    );
+
+    const priceStep = (
+      dutchDuration=="1-day" ? (priceMargin/(1*24*60*60))*300 :
+      dutchDuration=="3-day" ? (priceMargin/(3*24*60*60))*600 :
+      dutchDuration=="7-day" ? (priceMargin/(7*24*60*60))*1800 :
+      dutchDuration=="custom" ? (priceMargin/dutchCustomDuration)*1800 :
+      dutchDuration=="advanced" ? dutchIntervalCustomPrice : 0
+    )
+
+    try {
+      if (wallet) {
+        await initDutchAuctionTx(connection, wallet, mint, dutchStartPrice, dutchReservePrice, priceStep, interval);
+        setMintPrice(dutchStartPrice);
+        setNotificationTitle(`💰 Your Auction is Now Live!`);
+        setNotificationDesc(
+          `Your auction for ${name} has begun at ${dutchStartPrice} SOL. Please allow some time for the changes to be reflected in the listing and in your wallet.`
+        );
+        setNotificationCanClose(true);
+        setModalTimer(5);
+      }
+    } catch (error) {
+      setNotificationTitle(`Oops, something went wrong!`);
+      setNotificationDesc((error as Error).message);
+      setNotificationCanClose(true);
+    }
+    setTimeout(() => {
+    closeAndResetModal();
+    setNotificationCanClose(false);
+    refreshItem();
+}, 7000);
+  }
+
 
   async function buyItemEscrow(): Promise<void> {
     setButtonLoading(true)
@@ -546,6 +684,39 @@ export const NftDetails: React.FC<NftDetailsProps> = ({
     }, 5000)
   }
 
+  async function buyItemDutch(): Promise<void> {
+    setButtonLoading(true)
+    try {
+      if (wallet?.publicKey && nftData.saleInfo) {
+        await buyAuctionTx(
+          connection,
+          wallet,
+          nftData.saleInfo,
+          DUTCH_AUCTION_TAX_ID,
+          DUTCH_AUCTION_TAX_AMOUNT,
+          price
+        )
+
+        await setMintsInWalletUnlisted([...mintsInWalletUnlisted, mint])
+
+        setNotificationTitle(`Success!`)
+        setNotificationDesc(successText)
+        setNotificationCanClose(true)
+        setModalTimer(5)
+      }
+    } catch (error) {
+      setNotificationTitle(`Oops, something went wrong!`)
+      setNotificationDesc((error as Error).message)
+      setNotificationCanClose(true)
+      // toast.error(<Notification title="Oops, something went wrong!" description={error.message} />);
+    }
+    setTimeout(() => {
+      closeAndResetModal()
+      setNotificationCanClose(false)
+      refreshItem()
+    }, 5000)
+  }
+
   async function cancelSell(): Promise<void> {
     setButtonLoading(true)
     try {
@@ -609,6 +780,30 @@ export const NftDetails: React.FC<NftDetailsProps> = ({
     }, 5000)
   }
 
+  async function cancelDutchAuction(): Promise<void> {
+    setButtonLoading(true)
+    try {
+      if (wallet?.publicKey) {
+        await cancelDutchAuctionTx(connection, wallet, mint)
+        await setMintsInWalletUnlisted([...mintsInWalletUnlisted, mint])
+        setNotificationTitle(`Auction Terminated`)
+        setNotificationDesc(`This Auction is no longer live`)
+        setNotificationCanClose(true)
+        setModalTimer(5)
+      }
+    } catch (error) {
+      setNotificationTitle(`Oops, something went wrong!`)
+      setNotificationDesc((error as Error).message)
+      setNotificationCanClose(true)
+      // toast.error(<Notification title="Oops, something went wrong!" description={error.message} />);
+    }
+    setTimeout(() => {
+      closeAndResetModal()
+      setNotificationCanClose(false)
+      refreshItem()
+    }, 5000)
+  }
+
   const videoFile =
     metadata?.properties?.files &&
     typeof metadata?.properties?.files !== "string"
@@ -635,23 +830,6 @@ export const NftDetails: React.FC<NftDetailsProps> = ({
       : animationUrl.split(".").pop()
     : null
 
-  useEffect(() => {
-    ;(async () => {
-      setIsSalesHistoryLoading(true)
-      let fullSalesHistory: {
-        sales_history: SaleData[]
-      }
-      try {
-        fullSalesHistory = await (
-          await fetch(
-            `${BASE_URL_COLLECTION_SALES_HISTORY}?&mint=${mint}&type=SALE`
-          )
-        ).json()
-        setSalesHistory(fullSalesHistory?.sales_history || [])
-      } catch (error) {}
-      setIsSalesHistoryLoading(false)
-    })()
-  }, [mint, collectionName])
 
   const imageOutput =
     image && isImageInCache(image) && !cacheFailed ? (
@@ -878,6 +1056,28 @@ export const NftDetails: React.FC<NftDetailsProps> = ({
                     </p>
                   </div>
                 )}
+                {nftData.reservedPrice && nftData.reservedPrice/LAMPORTS_PER_SOL != nftData.price && (
+                  <div className="col-span-2">
+                    <p className="text-base text-gray-500 uppercase mb-2">Price Reduced in:</p>
+                    <div className="mb-6">
+                    <DutchCountdown
+                    timeLeft={timeLeftonPrice}
+                    refreshItem={refreshItem}
+                    />
+                    </div>
+                  </div>
+                )}
+                {isOwnedByWallet && nftData.reservedPrice && nftData.reservedPrice/LAMPORTS_PER_SOL == nftData.price && (
+                  <div className="col-span-2">
+                  <span className="text-orange">
+                    <ExclamationCircleIcon className="w-10 mr-4 inline" />
+                  </span>
+                    <p className="text-white font-light inline">Dutch Auction on this item has reached it's Reserve price</p>
+                    <div className="mb-6">
+
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -959,7 +1159,7 @@ export const NftDetails: React.FC<NftDetailsProps> = ({
                         </div>
                       )}
 
-                    {isListed && isEscrowListing && (
+                    {isListed && isEscrowListing && !nftData.reservedPrice && (
                       <div className="mb-8">
                         <TooltipReference {...tooltipConnectWallet}>
                           <button
@@ -979,6 +1179,38 @@ export const NftDetails: React.FC<NftDetailsProps> = ({
                         </TooltipReference>
                       </div>
                     )}
+
+                    {wallet?.publicKey && isListed && !isOwnedByWallet && nftData.reservedPrice && (
+                      <div className="mb-8">
+                      <button
+                        type="button"
+                        disabled={!wallet?.publicKey || notice || isNoticeLoading ? true : false}
+                        className="btn focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                        onClick={() => buyItemDutch()}
+                      >
+                        {buttonText}
+                      </button>
+                      </div>
+                    )
+                    }
+
+
+                    {isListed && isOwnedByWallet && nftData.reservedPrice && (
+                      <div className="mb-8">
+                      <button
+                        type="button"
+                        disabled={!wallet?.publicKey || notice || isNoticeLoading ? true : false}
+                        className="btn focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                        onClick={() => cancelDutchAuction()}
+                      >
+                        Cancel Dutch Auction & Unlist
+                      </button>
+                      </div>
+                    )
+
+                    }
+
+
 
                     {!isOwnedByWallet && wallet?.publicKey && (
                       <div className="mb-8">
@@ -1029,6 +1261,7 @@ export const NftDetails: React.FC<NftDetailsProps> = ({
                         </button>
                       </div>
                     )}
+
                   </div>
                 )}
 
@@ -1085,23 +1318,33 @@ export const NftDetails: React.FC<NftDetailsProps> = ({
                     <TabList {...tab} aria-label="My tabs">
                       <Tab
                         {...tab}
+                        id="fixed"
                         style={{
                           color: "white",
-                          background: "#222",
+                          background: `${tab.selectedId === "fixed" ? "#222" : "#444"}`,
                           padding: "1rem 2rem",
                           marginRight: "5px",
                           borderRadius: "5px 5px 0 0",
                         }}
-                        id="fixed"
                       >
                         Fixed Price
                       </Tab>
-                      {/* <Tab {...tab} style={{ color: "white", background: "#444", padding: "1rem", borderRadius: '5px 5px 0 0' }} disabled>
-                          Dutch Auction
-                        </Tab> */}
+                      <Tab
+                        id="dutch"
+                        {...tab}
+                        style={{
+                          color: "white",
+                          background: `${tab.selectedId === "dutch" ? "#222" : "#444"}`,
+                          padding: "1rem",
+                          borderRadius: "5px 5px 0 0",
+                        }}
+                      >
+                        Dutch Auction
+                      </Tab>
                     </TabList>
                     <TabPanel
                       {...tab}
+                      tabId="fixed"
                       style={{
                         color: "white",
                         background: "#222",
@@ -1169,6 +1412,291 @@ export const NftDetails: React.FC<NftDetailsProps> = ({
                             </p>
                           </div>
                         )}
+                      </>
+                    </TabPanel>
+                    <TabPanel
+                      {...tab}
+                      tabId="dutch"
+                      style={{
+                        color: "white",
+                        background: "#222",
+                        padding: "2rem",
+                        borderRadius: "0 5px 5px 5px",
+                        margin: "0",
+                      }}
+                    >
+                      <>
+                        <div className="mb-5">
+                          <div className="grid grid-cols-2 mb-5 gap-x-5">
+                            <div className="relative">
+                              <label className="text-xxs text-white font-light">
+                                Starting Price (sol)
+                              </label>
+                              <input
+                                onChange={(e) => {
+                                  handleDutchStartPriceChange(e);
+                                }}
+                                value={dutchStartPrice || ""}
+                                type="number"
+                                name="dutchStartingPrice"
+                                min="0"
+                                id="price"
+                                className="block w-full border border-gray-600 bg-transparent rounded-md text-gray-500 focus:text-white px-4 py-3 focus:outline-none font-light"
+                                placeholder="Amount"
+                                aria-describedby="price-currency"
+                                onWheel={(e) => (e.target as HTMLElement).blur()}
+                              />
+                            </div>
+                            <div className="relative">
+                              <label className="text-xxs text-white font-light">
+                                Reserve Price (sol)
+                              </label>
+                              <input
+                                onChange={(e) => {
+                                  handleDutchReservePriceChange(e)
+                                }}
+                                value={dutchReservePrice || ""}
+                                type="number"
+                                name="dutchReservePrice"
+                                min="0"
+                                max={dutchStartPrice}
+                                id="price"
+                                className="block w-full border border-gray-600 bg-transparent rounded-md text-gray-500 focus:text-white px-4 py-3 focus:outline-none font-light"
+                                placeholder="Amount"
+                                aria-describedby="price-currency"
+                                onWheel={(e) => (e.target as HTMLElement).blur()}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 mb-5 gap-x-5">
+                            <div className="relative">
+                              <label className="text-xxs text-white font-light">Duration</label>
+                                <StyledSelect
+                                  options={[
+                                    {
+                                      value: "1-day",
+                                      label: "1 day",
+                                    },
+                                    {
+                                      value: "3-day",
+                                      label: "3 day",
+                                    },
+                                    {
+                                      value: "7-day",
+                                      label: "7 day",
+                                    },
+                                    {
+                                      value: "custom",
+                                      label: "Custom",
+                                    },
+                                    {
+                                      value: "advanced",
+                                      label: "Advanced",
+                                    }
+                                  ]}
+                                  onChange={(selectedFilter: { value: any; label: string }, action:any) => {
+                                    setDutchDuration( selectedFilter.value );
+
+                                  }}
+                                  placeholder="Select Duration"
+                                  isClearable={false}
+                                  className="input-select"
+                                />
+                            </div>
+                            {dutchDuration == 'custom' && (
+                            <>
+                              <div className="relative">
+                                <label className="text-xxs text-white font-light">
+                                  Custom Duration
+                                </label>
+                                <div className="flex items-center justify-between gap-x-2">
+                                  <input
+                                    onChange={(e) => {
+                                      handleDutchCustomDurationDaysChange(e);
+                                    }}
+                                    value={dutchCustomDurationDays || ""}
+                                    type="number"
+                                    name="dutchCustomDurationDays"
+                                    min="0"
+                                    step="1"
+                                    id="days"
+                                    className="block w-full border border-gray-600 bg-transparent rounded-md text-gray-500 focus:text-white px-4 py-3 focus:outline-none font-light"
+                                    placeholder="Days"
+                                    aria-describedby="price-currency"
+                                    onWheel={(e) => (e.target as HTMLElement).blur()}
+                                  />
+                                  :
+                                  <input
+                                  onChange={(e) => {
+                                    handleDutchCustomDurationHoursChange(e);
+                                  }}
+                                  value={dutchCustomDurationHours || ""}
+                                  type="number"
+                                  name="dutchCustomDurationHours"
+                                  min="0"
+                                  max="23"
+                                  step="1"
+                                  id="hours"
+                                  className="block w-full border border-gray-600 bg-transparent rounded-md text-gray-500 focus:text-white px-4 py-3 focus:outline-none font-light"
+                                  placeholder="Hours"
+                                  aria-describedby="price-currency"
+                                  onWheel={(e) => (e.target as HTMLElement).blur()}
+                                  />
+                                </div>
+                              </div>
+                          </>
+                          )}
+                          </div>
+
+                          { (dutchDuration == 'custom' && (dutchCustomDurationDays > 0 || dutchCustomDurationHours > 0)) && listingNotice=='' &&
+                              <small className="mb-5 block">
+                                This auction will last {dutchCustomDurationDays} day(s) and {dutchCustomDurationHours} hour(s).
+                              </small>
+                          }
+
+                          { dutchDuration == 'advanced' && (
+                            <>
+                              <Divider rounded={true}/>
+                              <div className="grid grid-cols-2 my-5 gap-x-5">
+                              <div className="relative">
+                                <label className="text-xxs text-white font-light">
+                                  Adjustment Interval
+                                </label>
+                                <div className="flex items-center justify-between gap-x-2">
+                                  <input
+                                    onChange={(e) => {
+                                      handleDutchDurationCustomIntervalHoursChange(e);
+                                    }}
+                                    value={dutchDurationCustomIntervalHours || ""}
+                                    type="number"
+                                    name="dutchDurationCustomIntervalHours"
+                                    min="0"
+                                    max="24"
+                                    id="hours"
+                                    className="block w-full border border-gray-600 bg-transparent rounded-md text-gray-500 focus:text-white px-4 py-3 focus:outline-none font-light"
+                                    placeholder="Hours"
+                                    onWheel={(e) => (e.target as HTMLElement).blur()}
+                                  />
+                                  :
+                                  <input
+                                  onChange={(e) => {
+                                    handleDutchDurationCustomIntervalMinsChange(e);
+                                  }}
+                                  value={dutchDurationCustomIntervalMins || ""}
+                                  type="number"
+                                  name="dutchDurationCustomIntervalMins"
+                                  min="0"
+                                  max="59"
+                                  id="minutes"
+                                  className="block w-full border border-gray-600 bg-transparent rounded-md text-gray-500 focus:text-white px-4 py-3 focus:outline-none font-light"
+                                  placeholder="Minutes"
+                                  onWheel={(e) => (e.target as HTMLElement).blur()}
+                                  />
+                                </div>
+                              </div>
+                              <div className="relative">
+                                <label className="text-xxs text-white font-light">
+                                  Price Change Per Interval (sol)
+                                </label>
+                                <input
+                                  onChange={(e) => {
+                                    handleDutchIntervalCustomPriceChange(e);
+                                  }}
+                                  value={dutchIntervalCustomPrice || ""}
+                                  type="number"
+                                  name="dutchIntervalCustomPrice"
+                                  min="0"
+                                  id="price"
+                                  className="block w-full border border-gray-600 bg-transparent rounded-md text-gray-500 focus:text-white px-4 py-3 focus:outline-none font-light"
+                                  placeholder="Amount"
+                                  aria-describedby="price-currency"
+                                  onWheel={(e) => (e.target as HTMLElement).blur()}
+                                />
+                              </div>
+                            </div>
+                              { (dutchIntervalCustomPrice > 0 && (dutchDurationCustomIntervalHours > 0 || dutchDurationCustomIntervalMins > 0)) ?? (
+                                <small className="mb-5 block">
+                                  This item will lower by ◎{dutchIntervalCustomPrice} every {dutchDurationCustomIntervalHours} hours and {dutchDurationCustomIntervalMins} minutes.
+                                </small>
+                              )}
+                            </>
+                          )}
+                          <NftRoyaltyCalculator offer={nftData} listingPrice={dutchReservePrice} />
+                          {!!dutchReservePrice &&
+                            <p className="text-xs text-white opacity-90 mb-4">Above calculations are based on your Reserve price</p>}
+
+                          { listingNotice != '' && (
+                            <div className="bg-gray-800 border-2 border-orange rounded-md w-full mx-auto p-4 text-xs mb-4">
+                              <p className="text-white font-semibold">{listingNotice}</p>
+                            </div>
+                          )}
+
+                          { (dutchDuration == '1-day' || dutchDuration == '3-day' || dutchDuration == '7-day') && (
+                            <TooltipReference {...tooltipConnectWallet}>
+                              <button
+                                type="button"
+                                disabled={!wallet?.publicKey || listingNotice != '' || (dutchStartPrice == 0 || dutchReservePrice == 0 ) ? true : false}
+                                className="btn focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                                onClick={() => listOfferDutch()}
+                              >
+                                {dutchStartPrice > 0
+                                  ? `Begin auction at ◎${dutchStartPrice} SOL for ${dutchDuration}`
+                                  : "Enter Price to List"}
+                              </button>
+                            </TooltipReference>
+                          )}
+
+                          { (dutchDuration == 'custom') && (
+
+                            <TooltipReference {...tooltipConnectWallet}>
+                              <button
+                                type="button"
+                                disabled={
+                                  !wallet?.publicKey ||
+                                  listingNotice != '' ||
+                                  (dutchStartPrice <= 0) ||
+                                  (dutchReservePrice <= 0) ||
+                                  (dutchCustomDurationDays == 0 && dutchCustomDurationHours == 0) ?
+                                  true :
+                                  false
+                                }
+                                className="btn focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                                onClick={() => listOfferDutch()}
+                              >
+                                {(dutchStartPrice > 0)
+                                  ? `Begin auction at ◎${dutchStartPrice} SOL`
+                                  : "Enter Price to List"}
+                              </button>
+                            </TooltipReference>
+                          )}
+
+                          { (dutchDuration == 'advanced') && (
+                            <TooltipReference {...tooltipConnectWallet}>
+                              <button
+                                type="button"
+                                disabled={
+                                  !wallet?.publicKey ||
+                                  listingNotice != '' ||
+                                  (dutchStartPrice <= 0) ||
+                                  (dutchReservePrice <= 0) ||
+                                  !dutchDurationCustomInterval ||
+                                  !dutchIntervalCustomPrice ?
+                                  true :
+                                  false
+                                }
+                                className="btn focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                                onClick={() => listOfferDutch()}
+                              >
+                                {(dutchStartPrice > 0)
+                                  ? `Begin auction at ◎${dutchStartPrice} SOL with ◎${dutchIntervalCustomPrice} decrements`
+                                  : "Enter Price to List"}
+                              </button>
+                            </TooltipReference>
+                          )}
+
+                        </div>
+
                       </>
                     </TabPanel>
                   </div>

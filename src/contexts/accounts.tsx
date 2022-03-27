@@ -19,7 +19,7 @@ import {
   COLLECTIONS_RETRIEVER_QUERY_PARAM,
   BASE_URL_OFFERS_RETRIEVER,
 } from "../constants/urls"
-import { DIRECT_SELL_CONTRACT_ID } from "../constants/contract_id"
+import { DIRECT_SELL_CONTRACT_ID, DUTCH_AUCTION_CONTRACT_ID } from "../constants/contract_id"
 
 const AccountsContext = React.createContext<any>(null)
 
@@ -400,6 +400,9 @@ export function AccountsProvider({ children = null as any }) {
   const [listedMintsFromDirectSell, setListedMintsFromDirectSell] = useState<
     string[]
   >([])
+  const [listedMintsFromDutch, setListedMintsFromDutch] = useState<
+    string[]
+  >([])
   const { nativeAccount } = UseNativeAccount()
   const { endpoint } = useConnectionConfig()
   const escrows = getAllEscrowContracts(endpoint)
@@ -448,6 +451,7 @@ export function AccountsProvider({ children = null as any }) {
     ;(async () => {
       const unlistedMintsFromWallet: string[] = []
       const listedMintsFromDirectSell: string[] = []
+      const listedMintsFromDutch: string[] = []
       const userAccountsFiltered = await userAccounts.filter((account) => {
         return account.info.amount.toNumber() > 0
       })
@@ -475,6 +479,12 @@ export function AccountsProvider({ children = null as any }) {
               // if( decodedSaleInfo ) {
               // console.log( decodedSaleInfo );
               listedMintsFromDirectSell.push(account.info.mint.toString())
+            } else if(
+              offerInfo.contract &&
+              offerInfo.contract == DUTCH_AUCTION_CONTRACT_ID
+            ) {
+              listedMintsFromDutch.push(account.info.mint.toString())
+
             } else {
               unlistedMintsFromWallet.push(account.info.mint.toString())
             }
@@ -486,6 +496,7 @@ export function AccountsProvider({ children = null as any }) {
 
       setMintsInWalletUnlisted(unlistedMintsFromWallet)
       setListedMintsFromDirectSell(listedMintsFromDirectSell)
+      setListedMintsFromDutch(listedMintsFromDutch)
     })()
   }, [connected, userAccounts])
 
@@ -558,7 +569,9 @@ export function AccountsProvider({ children = null as any }) {
         listedMintsFromEscrow,
         mintsInWalletUnlisted,
         listedMintsFromDirectSell,
+        listedMintsFromDutch,
         setListedMintsFromDirectSell,
+        setListedMintsFromDutch,
         setListedMintsFromEscrow,
         setMintsInWalletUnlisted,
       }}

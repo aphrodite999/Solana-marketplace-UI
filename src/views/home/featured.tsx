@@ -1,4 +1,4 @@
-import { FireIcon } from "@heroicons/react/solid";
+import { CurrencyDollarIcon, FireIcon } from "@heroicons/react/solid";
 import { TicketIcon } from "@heroicons/react/outline";
 import { useEffect, useState } from "react";
 import { Collection } from "../../types";
@@ -49,6 +49,43 @@ export const HomeFeatured = () => {
               <p className="mt-3 text-base text-gray-300 sm:mt-5 sm:text-md lg:text-lg">
                 {collection?.description}
               </p>
+
+
+  {/* ADDED FOR ANIMAL GANG LAUNCHPAD START */}
+  
+              {/* {(collection?.type_ === "preapproved" || isLaunchpadProject) && (
+                <div className="flex items-center mt-4">
+                        <div className="pr-2 text-xs">
+                          <p className="mt-3 text-base text-gray-300 sm:mt-5 sm:text-md lg:text-lg">
+                            SUPPLY
+                          </p>
+                          <TicketIcon
+                            width="20"
+                            color="white"
+                            className="ml-4"
+                          />
+                          <p className="text-base text-white-300 sm:mt-5 sm:text-md lg:text-lg">
+                          {collection?.supply}
+                          </p>
+                        </div>
+                        <div className="px-2 text-xs">
+                          <p className="mt-3 text-base text-gray-300 sm:mt-5 sm:text-md lg:text-lg">
+                            PRICE
+                          </p>
+                          <CurrencyDollarIcon
+                            width="20"
+                            color="white"
+                            className="ml-3"
+                          />
+                          <p className="text-base text-white-300 sm:mt-5 sm:text-md lg:text-lg">
+                            {collection?.mint_price} SOL
+                          </p>
+                        </div>
+                    </div>
+              )} */}
+
+{/* ADDED FOR ANIMAL GANG LAUNCHPAD END */}
+
 
               {(collection?.type_ === "preapproved" || isLaunchpadProject) && (
                 <div className="flex items-end text-white mt-4">

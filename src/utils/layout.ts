@@ -137,6 +137,18 @@ export const SALE_INFO_ACCOUNT_DATA_LAYOUT = BufferLayout.struct([
   BufferLayout.u8("bump"),
 ]);
 
+export const DUTCH_AUCTION_ACCOUNT_DATA_LAYOUT = borsh.struct([
+  borsh.publicKey("initializerPubkey"),
+  borsh.publicKey("mintPubkey"),
+  borsh.publicKey("tokenAccountPubkey"),
+  borsh.u64("startingPrice"),
+  borsh.u64("reservedPrice"),
+  borsh.u64("priceStep"),
+  borsh.u64("interval"),
+  borsh.i64("startingTs"),
+  borsh.u8("bump"),
+]);
+
 export interface EscrowLayout {
   isInitialized: number;
   initializerPubkey: Uint8Array;
@@ -172,6 +184,18 @@ export interface SaleInfoLayout {
   initializerPubkey: Uint8Array;
   mintPubkey: Uint8Array;
   expectedAmount: Uint8Array;
+  bump: number;
+}
+
+export interface DutchAuctionInfoLayout {
+  initializerPubkey: Uint8Array;
+  mintPubkey: Uint8Array;
+  tokenAccountPubkey: Uint8Array;
+  startingPrice: number;
+  reservedPrice: number;
+  priceStep: Uint8Array;
+  interval: Uint8Array;
+  startingTs: Uint8Array;
   bump: number;
 }
 

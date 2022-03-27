@@ -6,6 +6,8 @@ import './style.css';
 import { RefreshIcon } from "@heroicons/react/outline";
 import nftImg from "../../assets/lottie/1.jpg";
 
+import { DutchCountdown } from "../../components/DutchCountdown";
+
 import {
     ProSidebar,
     Menu,

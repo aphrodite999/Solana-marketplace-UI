@@ -8,8 +8,10 @@ export function useUserAccounts() {
     listedMintsFromEscrow: context.listedMintsFromEscrow,
     mintsInWalletUnlisted: context.mintsInWalletUnlisted,
     listedMintsFromDirectSell: context.listedMintsFromDirectSell,
+    listedMintsFromDutch: context.listedMintsFromDutch,
     setListedMintsFromEscrow: context.setListedMintsFromEscrow,
     setMintsInWalletUnlisted: context.setMintsInWalletUnlisted,
     setListedMintsFromDirectSell: context.setListedMintsFromDirectSell,
+    setListedMintsFromDutch: context.setListedMintsFromDutch,
   };
 }

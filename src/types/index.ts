@@ -19,14 +19,19 @@ export interface ActiveOffer {
   isListed: boolean
   isVerifeyed: boolean
   // TODO: these 2 properties shouldn't be optional. It should be added everywhere we do a mapping for offer.
-  collectionName?: string
-  disputedMessage?: string
-  lastPrice?: number
-  solo?: boolean
-  tags?: any
-  artistUser?: string
-  artistImage?: any
-  artistVerified?: boolean
+  collectionName?: string;
+  disputedMessage?: string;
+  lastPrice?: number;
+  solo?: boolean;
+  tags?: any;
+  artistUser?: string;
+  artistImage?: any;
+  artistVerified?: boolean;
+  startingPrice?:any;
+  reservedPrice?: any;
+  priceStep?:any;
+  interval?:any;
+  startingTs?:any;
 }
 
 export interface ActiveArtist {
@@ -59,6 +64,8 @@ export interface Collection {
   isDerivative: boolean
   disputedMessage: string
   isNsfw: boolean
+  supply?: string  /* added  with Animal Gang Project */
+  mint_price?: number  /* added  with Animal Gang Project */
   numberOfItems?: number
   mintPrice?: number
   volumeLastUpdatedAt?: string

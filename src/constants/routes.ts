@@ -23,6 +23,7 @@ export const BLOG = "/blog";
 export const SUPPORT = "/support";
 export const NEWS = "/news";
 export const GUIDES = "/guides";
+export const CREATOR_GUIDES = "/creator-guides";
 export const SEARCH_RESULTS = "/search"
 export const DOMAIN_ITEM = "/domain-item"
 export const AUTHENTICATE_ACCOUNT = "/profile-auth"

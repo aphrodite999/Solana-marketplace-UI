@@ -28,6 +28,7 @@ import AudioContext, { IAudioContext } from "../../contexts/audio";
 import { ShimmeringImage } from "../ShimmeringImage";
 import { HTMLContent } from "../NftTypes";
 import { useConnection } from "../../contexts/connection";
+import {DutchCountdown} from "../DutchCountdown"
 
 export interface NftCardProps {
   offer: ActiveOffer
@@ -114,6 +115,21 @@ export const NftCard: React.FC<NftCardProps> = ({ offer, wallet,collectionVerife
     }
     getTokenAccount();
   }, [connection, offer]);
+
+  const timeLeft = offer.interval - ((Math.floor(Date.now()/1000) - offer.startingTs) % offer.interval);
+
+  const countDown = () => {
+    if (timeLeft) {
+      const days = Math.floor(timeLeft / 24 / 60 / 60)
+      const hoursLeft = Math.floor(timeLeft - days * 86400)
+      const hours = Math.floor(hoursLeft / 3600)
+      const minutesLeft = Math.floor(hoursLeft - hours * 3600)
+      const minutes = Math.floor(minutesLeft / 60)
+      const remainingSeconds = Math.floor(timeLeft % 60)
+      return `${days}:${hours}:${minutes}:${remainingSeconds}`
+    }
+  }
+
 
   return (
     <li
@@ -208,7 +224,13 @@ export const NftCard: React.FC<NftCardProps> = ({ offer, wallet,collectionVerife
                 )}
               </button>
             </div>
+            {timeLeft>0 && (
+              <p className="text-xxs m-auto p-0 text-gray-400">
+                Price lowers in: {countDown()}
+              </p>
+            )
 
+            }
             <TooltipReference {...tooltipQuickView}>
               <button
                 className="hover:text-white p-2.5 group"

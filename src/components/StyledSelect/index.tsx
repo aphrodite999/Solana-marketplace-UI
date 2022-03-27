@@ -13,6 +13,7 @@ interface StyledSelectProps {
   styles?: any;
   menuPortalTarget?: any;
   controlShouldRenderValue?: boolean;
+  className?: string;
 }
 
 export const StyledSelect: React.FC<StyledSelectProps> = ({
@@ -28,6 +29,7 @@ export const StyledSelect: React.FC<StyledSelectProps> = ({
   styles,
   menuPortalTarget,
   controlShouldRenderValue,
+  className,
 }) => {
   const reactSelectCustomStyles = {
     cursor:"text",
@@ -144,6 +146,7 @@ export const StyledSelect: React.FC<StyledSelectProps> = ({
       menuIsOpen={menuIsOpen}
       autoFocus={false}
       controlShouldRenderValue={controlShouldRenderValue}
+      className={className}
     />
   );
 };

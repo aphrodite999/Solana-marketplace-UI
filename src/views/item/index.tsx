@@ -1,17 +1,15 @@
-import { RefreshIcon } from "@heroicons/react/outline"
-import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js"
-import BN from "bn.js"
-import { useEffect, useState } from "react"
-import { useHistory, useParams } from "react-router-dom"
-import {
-  fetchMetadata,
-  fetchMetadataWithoutContract,
-} from "../../actions/metadata"
-import { LoadingWidget } from "../../components/loadingWidget"
-import { NftDetails } from "../../components/NftDetails"
-import { Page } from "../../components/Page"
-import { UNVERIFEYED_COLLECTION_OPTION } from "../../constants/collections"
-import * as ROUTES from "../../constants/routes"
+import { RefreshIcon } from "@heroicons/react/outline";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import BN from "bn.js";
+import { useEffect, useState } from "react";
+import { useHistory, useParams } from "react-router-dom";
+import { fetchMetadata, fetchMetadataWithoutContract } from "../../actions/metadata";
+import { LoadingWidget } from "../../components/loadingWidget";
+import { NftDetails } from "../../components/NftDetails";
+import { Page } from "../../components/Page";
+import { UNVERIFEYED_COLLECTION_OPTION } from "../../constants/collections";
+import * as ROUTES from "../../constants/routes";
+import bs58 from "bs58";
 import {
   BASE_URL_COLLECTIONS_RETRIEVER,
   BASE_URL_OFFERS_RETRIEVER,
@@ -33,10 +31,14 @@ import {
   ESCROW_ACCOUNT_DATA_LAYOUT,
   SaleInfoLayout,
   SALE_INFO_ACCOUNT_DATA_LAYOUT,
-} from "../../utils/layout"
-import { ErrorView } from "../error"
-import { DIRECT_SELL_CONTRACT_ID } from "../../constants/contract_id"
-import { fetchActiveDirectSellOffers } from "../../contracts/direct-sell"
+  DutchAuctionInfoLayout,
+  DUTCH_AUCTION_ACCOUNT_DATA_LAYOUT,
+} from "../../utils/layout";
+import { ErrorView } from "../error";
+import { DIRECT_SELL_CONTRACT_ID, DUTCH_AUCTION_CONTRACT_ID } from "../../constants/contract_id";
+import { fetchActiveDirectSellOffers } from "../../contracts/direct-sell";
+import { fetchActiveDutchAuctionOffers } from "../../contracts/dutch-auction";
+import { useAccountByMint } from "../../hooks/useAccountByMint";
 
 export const ItemView = () => {
   const connection = useConnection()
@@ -71,6 +73,7 @@ export const ItemView = () => {
     if (salesInfo.length > 0) {
       setStatusOnchain("listed")
       setIsRefreshing(false)
+
     } else {
       const accounts = await fetchActiveAccountOffers(
         connection,
@@ -78,16 +81,32 @@ export const ItemView = () => {
         undefined,
         mint
       )
-      setIsRefreshing(false)
       if (accounts.length > 0) {
         setStatusOnchain("escrow")
+        console.log("escrow");
+
       } else {
+
+        const auctionInfos = await fetchActiveDutchAuctionOffers(
+          connection,
+          undefined,
+          mint
+        );
+        console.log("dutch fetching", auctionInfos);
+
+        if(auctionInfos.length > 0){
+          setStatusOnchain("dutch")
+          setIsRefreshing(false)
+
+        }else{
         setStatusOnchain("unlisted")
+
       }
     }
 
     setIsLoading(false)
   }
+}
 
   const currentCollection = findCollection(
     [...collections, ...topCollections],
@@ -150,8 +169,9 @@ export const ItemView = () => {
     } catch (e) {
       setError(true)
     }
-    setNft(nft)
-  }
+    console.log( nft );
+    setNft(nft);
+  };
 
   useEffect(() => {
     // this allows custom contracts to continue using escrow program for royalties. e.g. crypto idolz
@@ -289,6 +309,66 @@ export const ItemView = () => {
               setStatusOnchain("listed")
               setOffer(offer)
               setIsLoading(false)
+            }
+          } else if (offerInfo.contract && offerInfo.contract == DUTCH_AUCTION_CONTRACT_ID) {
+            const auctionInfos = await fetchActiveDutchAuctionOffers(connection, undefined, mint);
+            if (!auctionInfos.length) {
+              setNftDataFromChain();
+            } else {
+              const decoded = DUTCH_AUCTION_ACCOUNT_DATA_LAYOUT.decode(
+                auctionInfos[0].account.data.slice(8)
+              ) as DutchAuctionInfoLayout;
+              const offer = {} as ActiveOffer;
+              offer.mint = decoded.mintPubkey.toString();
+              offer.contract = DUTCH_AUCTION_CONTRACT_ID;
+              offer.saleInfo = auctionInfos[0].pubkey.toString();
+              offer.startingPrice = decoded.startingPrice.toString();
+              offer.reservedPrice = decoded.reservedPrice.toString();
+              offer.startingTs = decoded.startingTs.toString();
+              offer.priceStep = decoded.priceStep.toString();
+              offer.interval = decoded.interval.toString();
+              const priceDecremented = offer.startingPrice - (Math.floor((Math.floor(Date.now()/1000) - offer.startingTs)/offer.interval)*offer.priceStep);
+
+              offer.price = (priceDecremented > offer.reservedPrice ? priceDecremented : offer.reservedPrice)/ LAMPORTS_PER_SOL;
+              offer.owner = offerInfo.owner;
+
+              // TODO determine price dynamically
+              /* decoded.startingPrice
+               * decoded.reservedPrice
+               * decoded.priceStep
+               * decoded.interval
+               */
+              let collection;
+              try {
+                const collectionPromise = await fetch(
+                  `${BASE_URL_COLLECTIONS_RETRIEVER}?${COLLECTIONS_RETRIEVER_QUERY_PARAM}=${mint.toString()}`
+                );
+                collection = await collectionPromise.json();
+              } catch (error) {
+                setError(true);
+              }
+
+              offer.collectionName = !!collection && collection !== [] ? collection?.name : "";
+              offer.collection = !!collection && collection;
+              offer.isVerifeyed = !!collection && collection !== [];
+              offer.disputedMessage =
+                !!collection && collection !== [] ? collection?.disputedMessage : "";
+                console.log(offer);
+
+              try {
+                offer.metadata = await fetchMetadataWithoutContract(
+                  connection,
+                  new PublicKey(mint.toString())
+                );
+              } catch (e) {
+                setError(true);
+              }
+
+              setOffer(offer);
+              setStatusOnchain("listed");
+              setIsLoading(false);
+
+
             }
           } else if (offerInfo.contract) {
             const accounts = await fetchActiveAccountOffers(
@@ -442,7 +522,7 @@ export const ItemView = () => {
                       )
                     }
                   } catch (e) {
-                    console.log("could not fetch metadata failed", e)
+                    console.log("could not fetch metadata", e);
                   }
                 }
               }

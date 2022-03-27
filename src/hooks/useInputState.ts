@@ -3,7 +3,7 @@ export function useInputState(initiaVal?: number ): any {
 	const [input, setInput] = useState(initiaVal);
 
 	const handleChange = (e: { target: { value: any } }) => {
-		setInput(Number(e.target.value));
+		setInput(e.target.value);
 	};
 	const reset = () => {
 		setInput(undefined);

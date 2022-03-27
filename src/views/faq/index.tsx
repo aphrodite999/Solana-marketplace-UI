@@ -35,15 +35,16 @@ const FAQContent = () => {
     <>
       {!!post && (
         <div className="flex items-center justify-center sm:pt-4 sm:px-4 sm:block sm:p-0">
-          <div className="text-center">
-            <h2 className="text-3xl tracking-tight font-extrabold text-white sm:text-4xl mb-0">
-              {/* @ts-ignore */}
-              {post.title.rendered}
-            </h2>
-          </div>
-
-          <div className="mt-12 max-w-lg mx-auto grid gap-5 lg:max-w-none wp">
-            <div className="flex flex-wrap max-w-7xl mx-auto py-6 px-4">
+          <div className="mt-4 max-w-lg mx-auto grid gap-5 lg:max-w-none wp">
+            
+            <div className="text-center">
+              <h2 className="text-3xl tracking-tight font-extrabold text-white sm:text-4xl mb-0">
+                {/* @ts-ignore */}
+                {post.title.rendered}
+              </h2>
+            </div>
+            
+            <div className="flex flex-wrap max-w-7xl mx-auto mt-3 py-6 px-4">
               <div className="w-full">
                 <div className="mt-3 text-base text-gray-500">
                   <div dangerouslySetInnerHTML={{ __html: post.content.rendered }}></div>

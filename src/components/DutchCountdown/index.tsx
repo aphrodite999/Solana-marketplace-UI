@@ -22,18 +22,26 @@ import { Connection } from "@solana/web3.js"
 
 interface DutchCountdownProps {
   timeLeft: number;
+  refreshItem: () => void;
 }
 
-export const DutchCountdown : React.FC<DutchCountdownProps> = ({ timeLeft }) => {
+export const DutchCountdown : React.FC<DutchCountdownProps> = ({ timeLeft,refreshItem }) => {
   const tooltipVerified = useTooltipState()
   const [isTimerStarted, setIsTimerStarted] = useState(false)
   const [timeLeftOnCounter, setTimeLeftOnCounter] = useState<number>(timeLeft)
 
 
   useEffect(() => {
+    if (timeLeftOnCounter<2) {
+      console.log("refreshing item");
+
+      refreshItem();
+    }
     setTimeout(() => {
       setTimeLeftOnCounter(timeLeftOnCounter - 1)
 }, 1000);
+
+
   },)
 
 
