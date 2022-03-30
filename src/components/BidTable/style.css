@@ -36,8 +36,8 @@
   }
 
   .search input {
-      padding: 0 30px!important;
-      color: #818181;
+      padding: 0!important;
+      color: white;
   }
 
   .inputRoot {
@@ -55,15 +55,6 @@
         width: '20ch',
       },
     }, */
-  }
-
-  .search-custom {
-    height: 100%;
-    width: 100%;
-    background-color: #171717;
-    color: #818181;
-    border-radius: 12px;
-    box-sizing: border-box;
   }
 
   .state-table {

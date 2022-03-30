@@ -426,7 +426,7 @@ export const CollectionsView = () => {
 
   useDidMountEffect(() => {
     loadOffers({ isInitialLoad: true })
-  }, [selectedFilters])
+  }, [selectedFilters]) 
 
   useDidMountEffect(() => {
     if (!isLoading) {
@@ -581,7 +581,7 @@ export const CollectionsView = () => {
                 <h1 className="h1 text-shadow-bg">{currentCollection?.name}</h1>
                 <div className="flex justify-evenly flex-col w-full text-center">
                   {collectionDescription && (
-                    <p className="text-gray-300 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose text-shadow-bg opacity-80">
+                    <p className="text-gray-300 mt-2 mx-auto w-5/6 text-sm leading-loose text-shadow-bg opacity-80">
                       {collectionDescription}
                     </p>
                   )}

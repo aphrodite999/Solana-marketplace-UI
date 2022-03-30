@@ -33,6 +33,7 @@
     justify-content: center;
     
     }
+
     .sidebar-btn {
         padding: 1px 15px;
         background: rgba(255, 255, 255, 0.05)!important;
@@ -64,6 +65,7 @@
         font-size: 24px;
         font-weight: bold;
         color: white;
+        text-align: center;
     }
     .sidebar-header2 {
         font-weight: bold;
@@ -78,6 +80,7 @@
         font-weight: bold;
         letter-spacing: 1px;
         color: white;
+        text-align: center;
     }
 
     .grey-status {
@@ -89,6 +92,7 @@
     .pro-sidebar {
         
         border-right: solid 1px #4E957C;
+        min-height: 80vh;
         background-color: black;
         width: 270px;
         min-width: 270px;

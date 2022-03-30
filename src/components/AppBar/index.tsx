@@ -225,19 +225,6 @@ export function AppBar() {
               >
                 Sell
               </Link>
-              <Link
-                to={pathname.includes("solo") ? ROUTES.SOLO_FAQ : ROUTES.FAQ}
-                onClick={() => close()}
-                className="font-light text-white hover:text-gray-500 uppercase transition hover:opacity-70"
-                style={{
-                  color:
-                    isProfilePage && profileTheme
-                      ? profileTheme.headerForeground
-                      : "",
-                }}
-              >
-                FAQ
-              </Link>
 
               {connected && (
                 <Link
@@ -257,6 +244,82 @@ export function AppBar() {
                   Favorites
                 </Link>
               )}
+
+
+            <Menu as="div" className="mx-3 relative inline-block text-left">
+                <Menu.Button className="text-white hover:text-gray-700 uppercase flex items-stretch">
+                  <span
+                    style={{
+                      color:
+                        isProfilePage && profileTheme
+                          ? profileTheme.headerForeground
+                          : "",
+                    }}
+                    className="inline"
+                  >
+                    Resources
+                  </span>
+                  <ChevronDownIcon className="w-4 h-4 inline self-center ml-2 opacity-70" />
+                </Menu.Button>
+                <Transition
+                  as={Fragment}
+                  enter="transition ease-out duration-100"
+                  enterFrom="transform opacity-0 scale-95"
+                  enterTo="transform opacity-100 scale-100"
+                  leave="transition ease-in duration-75"
+                  leaveFrom="transform opacity-100 scale-100"
+                  leaveTo="transform opacity-0 scale-95"
+                >
+                  <Menu.Items className="flex flex-col origin-top-right absolute right-0 mt-11 p-2 bg-gray-900 z-10 rounded-lg w-48 overflow-y-auto">
+                  <Menu.Item>
+                      <a
+                        href={ROUTES.FAQ}
+                        className="px-4 py-2 hover:text-gray-300 rounded-md hover:bg-gray-600 font-light flex justify-between"
+                      >
+                        <p>FAQ</p>
+                      </a>
+                    </Menu.Item>
+
+                    <Menu.Item>
+                      <a
+                        href={ROUTES.GUIDES}
+                        className="px-4 py-2 hover:text-gray-300 rounded-md hover:bg-gray-600 font-light flex justify-between"
+                      >
+                        <p>Guides</p>
+                      </a>
+                    </Menu.Item>
+
+
+                    <Menu.Item>
+                      <a
+                        href={ROUTES.BLOG}
+                        className="px-4 py-2 hover:text-gray-300 rounded-md hover:bg-gray-600 font-light flex justify-between"
+                      >
+                        <p>Blog</p>
+                      </a>
+                    </Menu.Item>
+
+                    {/* <Menu.Item>
+                      <a
+                        href={ROUTES.SUPPORT}
+                        className="px-4 py-2 hover:text-gray-300 rounded-md hover:bg-gray-600 font-light flex justify-between"
+                      >
+                        <p>Support</p>
+                      </a>
+                    </Menu.Item>
+                    <Menu.Item>
+                      <a
+                        href={ROUTES.NEWS}
+                        className="px-4 py-2 hover:text-gray-300 rounded-md hover:bg-gray-600 font-light flex justify-between"
+                      >
+                        <p>News</p>
+                      </a>
+                    </Menu.Item> */}
+
+
+                  </Menu.Items>
+                </Transition>
+              </Menu>
 
               <Menu as="div" className="mx-3 relative inline-block text-left">
                 <Menu.Button className="text-white hover:text-gray-700 uppercase flex items-stretch">
@@ -316,6 +379,8 @@ export function AppBar() {
                   </Menu.Items>
                 </Transition>
               </Menu>
+
+
             </Popover.Group>
 
             <div className="hidden xl:flex items-center justify-end">
@@ -408,6 +473,7 @@ export function AppBar() {
                           Sell
                         </div>
                       </Link>
+
                       <Link
                         to={
                           pathname.includes("solo")
@@ -421,6 +487,37 @@ export function AppBar() {
                           FAQ
                         </div>
                       </Link>
+
+                      <Link
+                        to={ROUTES.BLOG}
+                        onClick={() => close()}
+                        className="-m-3 p-3 flex items-center"
+                      >
+                        <div className="ml-3 font-light text-white uppercase hover:text-gray-500 text-xl">
+                          Blog
+                        </div>
+                      </Link>
+
+                      <Link
+                        to={ROUTES.GUIDES}
+                        onClick={() => close()}
+                        className="-m-3 p-3 flex items-center"
+                      >
+                        <div className="ml-3 font-light text-white uppercase hover:text-gray-500 text-xl">
+                          Guides 
+                        </div>
+                      </Link>
+
+                      <Link
+                        to={ROUTES.CREATOR_GUIDES}
+                        onClick={() => close()}
+                        className="-m-3 p-3 flex items-center"
+                      >
+                        <div className="ml-3 font-light text-white uppercase hover:text-gray-500 text-xl">
+                          Creator Guides 
+                        </div>
+                      </Link>
+
 
                       {connected && (
                         <Link

@@ -28,6 +28,9 @@ import {
 } from "../../contexts/domainListings"
 import { DomainName } from "../../utils/name-service"
 import { DomainCard } from "../../components/DomainCard"
+import { SideBar } from "../../components/SideBar"
+import "../../components/SideBar/style.css"
+
 
 export const WalletView = () => {
   const connection = useConnection()
@@ -429,340 +432,326 @@ export const WalletView = () => {
 
   return (
     <Page title="Your Wallet | DigitalEyes">
-      <div className="max-w-7xl mx-auto pt-10 px-4 sm:px-6 lg:px-8">
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {collectionsInWallet && (
-            <div className="flex justify-between">
-              <div className="w-60">
-                <button
-                  className="w-full py-2 font-medium text-white uppercase hover:text-gray-500 hover:border-gray-500 sm:text-sm flex items-center space-x-2"
-                  onClick={() => refreshWalletItems()}
-                >
-                  <span>Refresh</span>{" "}
-                  <RefreshIcon
-                    className={isLoading ? "w-5 h-5 animate-spin" : "w-5 h-5"}
-                    aria-hidden="true"
-                  />
-                </button>
-              </div>
-              <div className="w-60">
-                <StyledSelect
-                  options={Array.from(collectionsInWallet)
-                    .sort()
-                    .map((value: any) => {
-                      return {
-                        value,
-                        label: value,
+      <div className = "d-flex"> 
+        <SideBar />
+        <div className="mx-auto pt-10 px-4 sm:px-6 lg:px-8 col-lg-8">
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {collectionsInWallet && (
+              <div className="flex justify-between">
+                <div className="w-60">
+                  <button
+                    className="w-full py-2 font-medium text-white uppercase hover:text-gray-500 hover:border-gray-500 sm:text-sm flex items-center space-x-2"
+                    onClick={() => refreshWalletItems()}
+                  >
+                    <span>Refresh</span>{" "}
+                    <RefreshIcon
+                      className={isLoading ? "w-5 h-5 animate-spin" : "w-5 h-5"}
+                      aria-hidden="true"
+                    />
+                  </button>
+                </div>
+                <div className="w-60">
+                  <StyledSelect
+                    options={Array.from(collectionsInWallet)
+                      .sort()
+                      .map((value: any) => {
+                        return {
+                          value,
+                          label: value,
+                        }
+                      })}
+                    isLoading={isLoadingUnlisted}
+                    onChange={(option: any) => {
+                      if (option) {
+                        setCollectionFilter(option.value)
+                      } else {
+                        setCollectionFilter("")
                       }
-                    })}
-                  isLoading={isLoadingUnlisted}
-                  onChange={(option: any) => {
-                    if (option) {
-                      setCollectionFilter(option.value)
-                    } else {
-                      setCollectionFilter("")
-                    }
-                  }}
-                  placeholder="Sort by Collection..."
-                  placeholderPrefix="Sorting by"
-                  isClearable={true}
-                />
-              </div>
-            </div>
-          )}
-
-          <div
-            id="wallet-nav"
-            className="flex justify-center text-sm uppercase"
-          >
-            <TabList {...tab} aria-label="Wallet Tabs">
-              <Tab {...tab} id="wallet">
-                Wallet
-              </Tab>
-              <Tab {...tab} id="listed">
-                Listed NFTs
-              </Tab>
-              <Tab {...tab} id="bids">
-                Live bids
-              </Tab>
-              <Tab {...tab} id="auctions">
-                Live Auctions
-              </Tab>
-            </TabList>
-          </div>
-          <TabPanel {...tab} style={{}}>
-            <>
-              <div className="pt-16 sm:pt-12 mb-10">
-                <div className="relative text-center">
-                  <h1 className="h1">Your Wallet</h1>
-                  <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
-                    {wallet?.domainNames
-                      ? getDomainList(wallet?.domainNames)
-                      : wallet?.publicKey
-                      ? `${shortenAddress(wallet?.publicKey.toString())}`
-                      : ""}
-                  </p>
+                    }}
+                    placeholder="Sort by Collection..."
+                    placeholderPrefix="Sorting by"
+                    isClearable={true}
+                  />
                 </div>
               </div>
-              {connected ? (
-                <>
-                  {isLoadingUnlisted || isLoadingDomains ? (
-                    <div className="flex justify-center pt-20">
-                      <div className="w-48">
-                        <LoadingWidget />
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      {" "}
-                      {unlistedNfts.length ||
-                      wallet?.domainNames ||
-                      unclaimedDomains ? (
-                        <ul className="grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 flex-1 grid gap-4 md:gap-6 lg:gap-8 pb-6">
-                          {unlistedNfts.map((nft: ActiveOffer, index: any) => {
-                            if (
-                              collectionFilter &&
-                              collectionFilter !== nft.collectionName
-                            ) {
-                              return
-                            }
-                            return <NftCard key={index} offer={nft} wallet={true} />
-                          })}
-                          {wallet?.domainNames?.map((domain) => (
-                            <DomainCard
-                              connection={connection}
-                              key={domain?.name}
-                              domain={domain as DomainName}
-                            />
-                          ))}
-                          {unclaimedDomains?.map((domain) => (
-                            <DomainCard
-                              connection={connection}
-                              key={domain?.name}
-                              domain={domain as DomainName}
-                            />
-                          ))}
-                        </ul>
-                      ) : (
-                        <h1 className="text-2xl font-bold text-center text-white sm:tracking-tight py-6">
-                          You don't have any NFTs{" "}
-                        </h1>
-                      )}
-                    </>
-                  )}
-                </>
-              ) : (
-                <ConnectMessage />
-              )}
-            </>
-          </TabPanel>
+            )}
 
-          <TabPanel {...tab} style={{}}>
-            <>
-              <div className="pt-16 sm:pt-12 mb-10">
-                <div className="relative text-center">
-                  <h1 className="h1">Your Listed NFTs</h1>
-                  <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
-                    {wallet?.domainNames
-                      ? getDomainList(wallet?.domainNames)
-                      : wallet?.publicKey
-                      ? `${shortenAddress(wallet?.publicKey.toString())}`
-                      : ""}
-                  </p>
+            <TabPanel {...tab} style={{}}>
+              <>
+                <div className="pt-16 sm:pt-12 mb-10">
+                  <div className="relative text-center">
+                    <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
+                      {wallet?.domainNames
+                        ? getDomainList(wallet?.domainNames)
+                        : wallet?.publicKey
+                        ? `${shortenAddress(wallet?.publicKey.toString())}`
+                        : ""}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              {connected ? (
-                <>
-                  {isLoadingListed || isLoadingEscrow || isLoadingDomains ? (
-                    <div className="flex justify-center pt-20">
-                      <div className="w-48">
-                        <LoadingWidget />
+                {connected ? (
+                  <>
+                    {isLoadingUnlisted || isLoadingDomains ? (
+                      <div className="flex justify-center pt-20">
+                        <div className="w-48">
+                          <LoadingWidget />
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <>
-                      {listedNfts.length || userListedDomains ? (
-                        <ul className="grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 flex-1 grid gap-4 md:gap-6 lg:gap-8 pb-6">
-                          {listedNfts?.map((nft: ActiveOffer, index: any) => {
-                            if (
-                              collectionFilter &&
-                              collectionFilter !== nft.collectionName
-                            )
-                              return
-                            return <NftCard key={index} offer={nft} wallet={true} />
-                          })}
-                          {userListedDomains?.map((domain) => (
-                            <DomainCard
-                              connection={connection}
-                              key={domain?.name}
-                              domain={domain as DomainName}
-                            />
-                          ))}
-                        </ul>
-                      ) : (
-                        <>
-                          <p className="text-base text-center text-white sm:tracking-tight pt-6">
-                            You don't have any NFTs listed from your wallet.
-                          </p>
-                          <p className="text-base text-center text-white sm:tracking-tight pb-6">
-                            If this seems like a mistake try refreshing below.
-                          </p>
-                          <p className="flex justify-center">
-                            <button onClick={() => refreshWalletItems()}>
-                              <span className="text-white inline-flex items-center">
-                                <RefreshIcon className="h-4 w-4 mr-1" /> Refresh
-                              </span>
-                            </button>
-                          </p>
-                        </>
-                      )}
-
-                      {listedNftsEscrow.length > 0 && (
-                        <>
-                          <h3 className="text-xl font-bold text-center text-white sm:tracking-tight py-6">
-                            The following items are listed with escrow contracts
-                            and will not appear in your wallet:
-                          </h3>
+                    ) : (
+                      <>
+                        {" "}
+                        {unlistedNfts.length ||
+                        wallet?.domainNames ||
+                        unclaimedDomains ? (
                           <ul className="grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 flex-1 grid gap-4 md:gap-6 lg:gap-8 pb-6">
-                            {listedNftsEscrow.map(
-                              (nft: ActiveOffer, index: any) => {
-                                if (
-                                  collectionFilter &&
-                                  collectionFilter !== nft.collectionName
-                                )
-                                  return
-                                return <NftCard key={index} offer={nft} wallet={true}/>
+                            {unlistedNfts.map((nft: ActiveOffer, index: any) => {
+                              if (
+                                collectionFilter &&
+                                collectionFilter !== nft.collectionName
+                              ) {
+                                return
                               }
-                            )}
+                              return <NftCard key={index} offer={nft} wallet={true} />
+                            })}
+                            {wallet?.domainNames?.map((domain) => (
+                              <DomainCard
+                                connection={connection}
+                                key={domain?.name}
+                                domain={domain as DomainName}
+                              />
+                            ))}
+                            {unclaimedDomains?.map((domain) => (
+                              <DomainCard
+                                connection={connection}
+                                key={domain?.name}
+                                domain={domain as DomainName}
+                              />
+                            ))}
                           </ul>
-                        </>
-                      )}
-                    </>
-                  )}
-                </>
-              ) : (
-                <ConnectMessage />
-              )}
-            </>
-          </TabPanel>
+                        ) : (
+                          <h1 className="text-2xl font-bold text-center text-white sm:tracking-tight py-6">
+                            You don't have any NFTs{" "}
+                          </h1>
+                        )}
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <ConnectMessage />
+                )}
+              </>
+            </TabPanel>
 
-          <TabPanel {...tab} style={{}}>
-            <>
-              <div className="pt-16 sm:pt-12 mb-10">
-                <div className="relative text-center">
-                  <h1 className="h1">Your live bids</h1>
-                  <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
-                    {wallet?.domainNames
-                      ? getDomainList(wallet?.domainNames)
-                      : wallet?.publicKey
-                      ? `${shortenAddress(wallet?.publicKey.toString())}`
-                      : ""}
-                  </p>
+            <TabPanel {...tab} style={{}}>
+              <>
+                <div className="pt-16 sm:pt-12 mb-10">
+                  <div className="relative text-center">
+                    <h1 className="h1">Your Listed NFTs</h1>
+                    <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
+                      {wallet?.domainNames
+                        ? getDomainList(wallet?.domainNames)
+                        : wallet?.publicKey
+                        ? `${shortenAddress(wallet?.publicKey.toString())}`
+                        : ""}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              {connected ? (
-                <>
-                  {isLoadingDomains ? (
-                    <div className="flex justify-center pt-20">
-                      <div className="w-48">
-                        <LoadingWidget />
+                {connected ? (
+                  <>
+                    {isLoadingListed || isLoadingEscrow || isLoadingDomains ? (
+                      <div className="flex justify-center pt-20">
+                        <div className="w-48">
+                          <LoadingWidget />
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <>
-                      {activeDomainBids ? (
-                        <ul className="grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 flex-1 grid gap-4 md:gap-6 lg:gap-8 pb-6">
-                          {activeDomainBids.map((domain) => (
-                            <DomainCard
-                              connection={connection}
-                              key={domain?.name}
-                              domain={domain as DomainName}
-                            />
-                          ))}
-                        </ul>
-                      ) : (
-                        <h1 className="text-2xl font-bold text-center text-white sm:tracking-tight py-6">
-                          You don't have any bids{" "}
-                        </h1>
-                      )}
-                    </>
-                  )}
-                </>
-              ) : (
-                <ConnectMessage />
-              )}
-            </>
-          </TabPanel>
+                    ) : (
+                      <>
+                        {listedNfts.length || userListedDomains ? (
+                          <ul className="grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 flex-1 grid gap-4 md:gap-6 lg:gap-8 pb-6">
+                            {listedNfts?.map((nft: ActiveOffer, index: any) => {
+                              if (
+                                collectionFilter &&
+                                collectionFilter !== nft.collectionName
+                              )
+                                return
+                              return <NftCard key={index} offer={nft} wallet={true} />
+                            })}
+                            {userListedDomains?.map((domain) => (
+                              <DomainCard
+                                connection={connection}
+                                key={domain?.name}
+                                domain={domain as DomainName}
+                              />
+                            ))}
+                          </ul>
+                        ) : (
+                          <>
+                            <p className="text-base text-center text-white sm:tracking-tight pt-6">
+                              You don't have any NFTs listed from your wallet.
+                            </p>
+                            <p className="text-base text-center text-white sm:tracking-tight pb-6">
+                              If this seems like a mistake try refreshing below.
+                            </p>
+                            <p className="flex justify-center">
+                              <button onClick={() => refreshWalletItems()}>
+                                <span className="text-white inline-flex items-center">
+                                  <RefreshIcon className="h-4 w-4 mr-1" /> Refresh
+                                </span>
+                              </button>
+                            </p>
+                          </>
+                        )}
 
-          <TabPanel {...tab} style={{}}>
-            <>
-              <div className="pt-16 sm:pt-12 mb-10">
-                <div className="relative text-center">
-                  <h1 className="h1">Your Live Auctions</h1>
-                  <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
-                    {wallet?.domainNames
-                      ? getDomainList(wallet?.domainNames)
-                      : wallet?.publicKey
-                      ? `${shortenAddress(wallet?.publicKey.toString())}`
-                      : ""}
-                  </p>
+                        {listedNftsEscrow.length > 0 && (
+                          <>
+                            <h3 className="text-xl font-bold text-center text-white sm:tracking-tight py-6">
+                              The following items are listed with escrow contracts
+                              and will not appear in your wallet:
+                            </h3>
+                            <ul className="grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 flex-1 grid gap-4 md:gap-6 lg:gap-8 pb-6">
+                              {listedNftsEscrow.map(
+                                (nft: ActiveOffer, index: any) => {
+                                  if (
+                                    collectionFilter &&
+                                    collectionFilter !== nft.collectionName
+                                  )
+                                    return
+                                  return <NftCard key={index} offer={nft} wallet={true}/>
+                                }
+                              )}
+                            </ul>
+                          </>
+                        )}
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <ConnectMessage />
+                )}
+              </>
+            </TabPanel>
+
+            <TabPanel {...tab} style={{}}>
+              <>
+                <div className="pt-16 sm:pt-12 mb-10">
+                  <div className="relative text-center">
+                    <h1 className="h1">Your live bids</h1>
+                    <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
+                      {wallet?.domainNames
+                        ? getDomainList(wallet?.domainNames)
+                        : wallet?.publicKey
+                        ? `${shortenAddress(wallet?.publicKey.toString())}`
+                        : ""}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              {connected ? (
-                <>
-                  {isLoadingDutch || isLoadingEscrow || isLoadingDomains ? (
-                    <div className="flex justify-center pt-20">
-                      <div className="w-48">
-                        <LoadingWidget />
+                {connected ? (
+                  <>
+                    {isLoadingDomains ? (
+                      <div className="flex justify-center pt-20">
+                        <div className="w-48">
+                          <LoadingWidget />
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <>
-                      {listedNftsDutch.length || userListedDomains ? (
-                        <ul className="grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 flex-1 grid gap-4 md:gap-6 lg:gap-8 pb-6">
-                          {listedNftsDutch?.map((nft: ActiveOffer, index: any) => {
-                            if (
-                              collectionFilter &&
-                              collectionFilter !== nft.collectionName
-                            )
-                              return
-                            return <NftCard key={index} offer={nft} wallet={true} />
-                          })}
-                          {userListedDomains?.map((domain) => (
-                            <DomainCard
-                              connection={connection}
-                              key={domain?.name}
-                              domain={domain as DomainName}
-                            />
-                          ))}
-                        </ul>
-                      ) : (
-                        <>
-                          <p className="text-base text-center text-white sm:tracking-tight pt-6">
-                            You don't have any NFTs on auction in your wallet.
-                          </p>
-                          <p className="text-base text-center text-white sm:tracking-tight pb-6">
-                            If this seems like a mistake try refreshing below.
-                          </p>
-                          <p className="flex justify-center">
-                            <button onClick={() => refreshWalletItems()}>
-                              <span className="text-white inline-flex items-center">
-                                <RefreshIcon className="h-4 w-4 mr-1" /> Refresh
-                              </span>
-                            </button>
-                          </p>
-                        </>
-                      )}
+                    ) : (
+                      <>
+                        {activeDomainBids ? (
+                          <ul className="grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 flex-1 grid gap-4 md:gap-6 lg:gap-8 pb-6">
+                            {activeDomainBids.map((domain) => (
+                              <DomainCard
+                                connection={connection}
+                                key={domain?.name}
+                                domain={domain as DomainName}
+                              />
+                            ))}
+                          </ul>
+                        ) : (
+                          <h1 className="text-2xl font-bold text-center text-white sm:tracking-tight py-6">
+                            You don't have any bids{" "}
+                          </h1>
+                        )}
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <ConnectMessage />
+                )}
+              </>
+            </TabPanel>
+
+            <TabPanel {...tab} style={{}}>
+              <>
+                <div className="pt-16 sm:pt-12 mb-10">
+                  <div className="relative text-center">
+                    <h1 className="h1">Your Live Auctions</h1>
+                    <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
+                      {wallet?.domainNames
+                        ? getDomainList(wallet?.domainNames)
+                        : wallet?.publicKey
+                        ? `${shortenAddress(wallet?.publicKey.toString())}`
+                        : ""}
+                    </p>
+                  </div>
+                </div>
+                {connected ? (
+                  <>
+                    {isLoadingDutch || isLoadingEscrow || isLoadingDomains ? (
+                      <div className="flex justify-center pt-20">
+                        <div className="w-48">
+                          <LoadingWidget />
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        {listedNftsDutch.length || userListedDomains ? (
+                          <ul className="grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 flex-1 grid gap-4 md:gap-6 lg:gap-8 pb-6">
+                            {listedNftsDutch?.map((nft: ActiveOffer, index: any) => {
+                              if (
+                                collectionFilter &&
+                                collectionFilter !== nft.collectionName
+                              )
+                                return
+                              return <NftCard key={index} offer={nft} wallet={true} />
+                            })}
+                            {userListedDomains?.map((domain) => (
+                              <DomainCard
+                                connection={connection}
+                                key={domain?.name}
+                                domain={domain as DomainName}
+                              />
+                            ))}
+                          </ul>
+                        ) : (
+                          <>
+                            <p className="text-base text-center text-white sm:tracking-tight pt-6">
+                              You don't have any NFTs on auction in your wallet.
+                            </p>
+                            <p className="text-base text-center text-white sm:tracking-tight pb-6">
+                              If this seems like a mistake try refreshing below.
+                            </p>
+                            <p className="flex justify-center">
+                              <button onClick={() => refreshWalletItems()}>
+                                <span className="text-white inline-flex items-center">
+                                  <RefreshIcon className="h-4 w-4 mr-1" /> Refresh
+                                </span>
+                              </button>
+                            </p>
+                          </>
+                        )}
 
 
-                    </>
-                  )}
-                </>
-              ) : (
-                <ConnectMessage />
-              )}
-            </>
-          </TabPanel>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <ConnectMessage />
+                )}
+              </>
+            </TabPanel>
+          </div>
+        </div>
+        <div className = "col-lg-2">
+                  
         </div>
       </div>
     </Page>
