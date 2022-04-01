@@ -1,5 +1,5 @@
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js"
-import { useCallback, useEffect, useState } from "react"
+import { Children, useCallback, useEffect, useState } from "react"
 import { fetchMetadata } from "../../actions/metadata"
 import { ConnectMessage } from "../../components/ConnectMessage"
 import { LoadingWidget } from "../../components/loadingWidget"
@@ -30,6 +30,20 @@ import { DomainName } from "../../utils/name-service"
 import { DomainCard } from "../../components/DomainCard"
 import { SideBar } from "../../components/SideBar"
 import "../../components/SideBar/style.css"
+
+
+import {
+  ProSidebar,
+  Menu,
+  MenuItem,
+  SubMenu,
+  SidebarHeader,
+  SidebarFooter,
+  SidebarContent
+} from "react-pro-sidebar";
+import 'font-awesome/css/font-awesome.min.css'
+import useWindowDimensions from "../../utils/layout";
+
 
 
 
@@ -68,7 +82,7 @@ export const WalletView = () => {
 
   useEffect(() => {
     if (wallet?.publicKey && !listedBonfidaDomains) {
-      ;(async () => {
+      ; (async () => {
         setIsLoadingDomains(true)
         const listedDomains = await getListedDomains(
           connection,
@@ -404,7 +418,7 @@ export const WalletView = () => {
 
   useEffect(() => {
     if (wallet?.publicKey && connection && listedBonfidaDomains) {
-      ;(async () => {
+      ; (async () => {
         const domainsWithBids = await userDomainBids()
 
         if (domainsWithBids) {
@@ -417,7 +431,7 @@ export const WalletView = () => {
 
   useEffect(() => {
     if (wallet?.publicKey && connection && listedBonfidaDomains) {
-      ;(async () => {
+      ; (async () => {
         const userUnclaimedDomains = await getUnclaimedDomains()
 
         if (userUnclaimedDomains) {
@@ -431,11 +445,132 @@ export const WalletView = () => {
   console.log(listedNftsDutch);
 
 
+
+  const [menuCollapse, setMenuCollapse] = useState(true)
+
+  //create a custom function that will change menucollapse state from false to true and true to false
+  const menuIconClick = () => {
+    //condition checking to change state from true to false and vice versa
+    menuCollapse ? setMenuCollapse(false) : setMenuCollapse(true);
+  };
+
+  const { width } = useWindowDimensions();
+
+  const check_width = (e: any) => {
+    const width = window.innerWidth;
+    console.log(menuCollapse);
+    if (width > 768 && !menuCollapse) {
+      console.log('>');
+      setMenuCollapse(true);
+    }
+    if (width <= 768 && menuCollapse) {
+      setMenuCollapse(false);
+    }
+
+  }
+
+  useEffect(() => {
+    window.addEventListener('resize', (e) => {
+      check_width(e);
+    })
+  }, [])
+
+  const [index, setIndex] = useState(0);
+
+  const Switch = (props:any) => {
+    const { test, children } = props
+    return children.find((child:any) => {
+      return child.props.value === test
+    })
+  }
+
+  const BaseDiv = (prop : any ) => <div> {prop.children}
+     </div>
+
   return (
     <Page title="Your Wallet | DigitalEyes">
-      <div className = "d-flex"> 
-        <SideBar />
-        <div className="mx-auto pt-10 px-4 sm:px-6 lg:px-8" style = {{ width: "100vw" }}>
+      <div className="d-flex">
+        {/* <SideBar /> */}
+        {menuCollapse ?
+          <ProSidebar 
+            className="col-2 col-md-3 col-sm-12">
+
+            <SidebarHeader
+              style={{
+                padding: 40,
+              }}>
+              <div className="sidebar-header1">
+                <div>
+                  Your Wallet
+                </div>
+                <div className="sidebar-header2 mt-2">
+                  Call Dai
+                </div>
+                <div className="sidebar-header3 mt-2">
+                  Total Floor Value
+                </div>
+              </div>
+              <div className="closemenu" onClick={menuIconClick}>
+                {/* changing menu collapse icon on click */}
+                {menuCollapse ? (
+                  <i className="fa fa-arrow-circle-left"></i>
+                ) : (
+                  <i className="fa fa-arrow-circle-right"></i>
+                )}
+              </div>
+            </SidebarHeader>
+
+            <SidebarContent
+              style={{
+                padding: 20,
+                color: "white"
+              }}
+            >
+              <Menu {...tab}>
+                <MenuItem onClick={()=>{setIndex(0)}}> Owned NFTs </MenuItem>
+                <MenuItem onClick={()=>{setIndex(1)}}> Listed NFTs </MenuItem>
+                {/* <MenuItem><a onClick={()=>{setOfferState('Offer Received')}}> Offers Received </a> </MenuItem>
+                    <MenuItem ><a onClick={()=>{setOfferState('Offer Made')}}> Offers Made </a></MenuItem> */}
+                <MenuItem onClick={()=>{setIndex(2)}}> Live Domain Bids </MenuItem>
+                {/* <MenuItem> Creations </MenuItem> */}
+                <MenuItem onClick={()=>{setIndex(3)}}> Activities </MenuItem>
+              </Menu>
+            </SidebarContent>
+
+
+            {/* <SidebarFooter
+                style={{
+                    textAlign: "center",
+                    padding: 20,
+                    color: "white"
+                }}>
+                <div>
+                    <p
+                        style={{
+                            textTransform: "uppercase",
+                            marginBottom: "20px"
+                        }}>
+                        Bidding Account
+                    </p>
+                    <p> Balance &nbsp; &nbsp; 20 SOL</p>
+                    <button className = "sidebar-btn">Deposit</button>
+                    <button className = "sidebar-btn">Withdraw</button>
+                </div>
+            </SidebarFooter> */}
+          </ProSidebar >
+          :
+          <div className="small-sidebar">
+            <div className="closemenu" onClick={menuIconClick}>
+              {/* changing menu collapse icon on click */}
+              {menuCollapse ? (
+                <i className="fa fa-arrow-circle-left"></i>
+              ) : (
+                <i className="fa fa-arrow-circle-right"></i>
+              )}
+            </div>
+          </div>
+        }
+        <div className="mx-auto pt-10 px-4 sm:px-6 lg:px-8" style={{ width: "100vw" }}>
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {collectionsInWallet && (
               <div className="flex justify-between">
@@ -477,27 +612,8 @@ export const WalletView = () => {
               </div>
             )}
 
-            <div
-              id="wallet-nav"
-              className="flex justify-center text-sm uppercase"
-           >
-              <TabList {...tab} aria-label="Wallet Tabs"  style = {{display: "none"}}>
-                <Tab {...tab} id="wallet">
-                  Wallet
-                </Tab>
-                <Tab {...tab} id="listed">
-                  Listed NFTs
-                </Tab>
-                <Tab {...tab} id="bids">
-                  Live bids
-                </Tab>
-                <Tab {...tab} id="auctions">
-                  Live Auctions
-                </Tab>
-              </TabList>
-            </div>
-            <TabPanel {...tab} style={{}}>
-              <>
+            <Switch test = { index }>
+              <BaseDiv value = {0}>
                 <div className="pt-16 sm:pt-12 mb-10">
                   <div className="relative text-center">
                     {/* <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
@@ -521,8 +637,8 @@ export const WalletView = () => {
                       <>
                         {" "}
                         {unlistedNfts.length ||
-                        wallet?.domainNames ||
-                        unclaimedDomains ? (
+                          wallet?.domainNames ||
+                          unclaimedDomains ? (
                           <ul className="grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 flex-1 grid gap-4 md:gap-6 lg:gap-8 pb-6">
                             {unlistedNfts.map((nft: ActiveOffer, index: any) => {
                               if (
@@ -559,21 +675,18 @@ export const WalletView = () => {
                 ) : (
                   <ConnectMessage />
                 )}
-              </>
-            </TabPanel>
-
-            <TabPanel {...tab} style={{}}>
-              <>
+              </BaseDiv>
+              <BaseDiv value = {1}>
                 <div className="pt-16 sm:pt-12 mb-10">
                   <div className="relative text-center">
                     <h1 className="h1">Your Listed NFTs</h1>
-                    <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
+                    {/* <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
                       {wallet?.domainNames
                         ? getDomainList(wallet?.domainNames)
                         : wallet?.publicKey
-                        ? `${shortenAddress(wallet?.publicKey.toString())}`
-                        : ""}
-                    </p>
+                          ? `${shortenAddress(wallet?.publicKey.toString())}`
+                          : ""}
+                    </p> */}
                   </div>
                 </div>
                 {connected ? (
@@ -636,7 +749,7 @@ export const WalletView = () => {
                                     collectionFilter !== nft.collectionName
                                   )
                                     return
-                                  return <NftCard key={index} offer={nft} wallet={true}/>
+                                  return <NftCard key={index} offer={nft} wallet={true} />
                                 }
                               )}
                             </ul>
@@ -648,21 +761,18 @@ export const WalletView = () => {
                 ) : (
                   <ConnectMessage />
                 )}
-              </>
-            </TabPanel>
-
-            <TabPanel {...tab} style={{}}>
-              <>
+              </BaseDiv>
+              <BaseDiv value = {2}>
                 <div className="pt-16 sm:pt-12 mb-10">
                   <div className="relative text-center">
                     <h1 className="h1">Your live bids</h1>
-                    <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
+                    {/* <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
                       {wallet?.domainNames
                         ? getDomainList(wallet?.domainNames)
                         : wallet?.publicKey
-                        ? `${shortenAddress(wallet?.publicKey.toString())}`
-                        : ""}
-                    </p>
+                          ? `${shortenAddress(wallet?.publicKey.toString())}`
+                          : ""}
+                    </p> */}
                   </div>
                 </div>
                 {connected ? (
@@ -696,21 +806,18 @@ export const WalletView = () => {
                 ) : (
                   <ConnectMessage />
                 )}
-              </>
-            </TabPanel>
-
-            <TabPanel {...tab} style={{}}>
-              <>
+              </BaseDiv>
+              <BaseDiv value = {3}>
                 <div className="pt-16 sm:pt-12 mb-10">
                   <div className="relative text-center">
                     <h1 className="h1">Your Live Auctions</h1>
-                    <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
+                    {/* <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
                       {wallet?.domainNames
                         ? getDomainList(wallet?.domainNames)
                         : wallet?.publicKey
-                        ? `${shortenAddress(wallet?.publicKey.toString())}`
-                        : ""}
-                    </p>
+                          ? `${shortenAddress(wallet?.publicKey.toString())}`
+                          : ""}
+                    </p> */}
                   </div>
                 </div>
                 {connected ? (
@@ -766,8 +873,8 @@ export const WalletView = () => {
                 ) : (
                   <ConnectMessage />
                 )}
-              </>
-            </TabPanel>
+              </BaseDiv>
+            </Switch>
           </div>
         </div>
       </div>
