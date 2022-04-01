@@ -16,7 +16,7 @@ import 'font-awesome/css/font-awesome.min.css'
 import useWindowDimensions from "../../utils/layout";
 
 
-export const SideBar = ({ setOfferState }: any, props: any) => {
+export const SideBar = ({ setStatus }: any ) => {
 
 
     const [menuCollapse, setMenuCollapse] = useState(true)
@@ -87,13 +87,13 @@ export const SideBar = ({ setOfferState }: any, props: any) => {
                         }}
                     >
                         <Menu>
-                            <MenuItem onClick={() => { props.getStatus(0) }}> Owned NFTs </MenuItem>
-                            <MenuItem onClick={() => { props.getStatus(1) }}> Listed NFTs </MenuItem>
+                            <MenuItem onClick={() => setStatus(0) }> Owned NFTs </MenuItem>
+                            <MenuItem onClick={() => setStatus(1) }> Listed NFTs </MenuItem>
                             {/* <MenuItem><a onClick={()=>{setOfferState('Offer Received')}}> Offers Received </a> </MenuItem>
                             <MenuItem ><a onClick={()=>{setOfferState('Offer Made')}}> Offers Made </a></MenuItem> */}
-                            <MenuItem onClick={() => { props.getStatus(2) }}> Live Domain Bids </MenuItem>
+                            <MenuItem onClick={() => setStatus(2) }> Live Domain Bids </MenuItem>
                             {/* <MenuItem> Creations </MenuItem> */}
-                            <MenuItem onClick={() => { props.getStatus(3) }}> <a href="" id="auction"> Activities </a> </MenuItem>
+                            <MenuItem onClick={() => setStatus(3) }> <a href="" id="auction"> Activities </a> </MenuItem>
                         </Menu>
                     </SidebarContent>
 

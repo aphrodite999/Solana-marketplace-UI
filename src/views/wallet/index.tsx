@@ -1,5 +1,5 @@
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js"
-import { Children, useCallback, useEffect, useState } from "react"
+import React, { Children, useCallback, useEffect, useState } from "react"
 import { fetchMetadata } from "../../actions/metadata"
 import { ConnectMessage } from "../../components/ConnectMessage"
 import { LoadingWidget } from "../../components/loadingWidget"
@@ -482,8 +482,11 @@ export const WalletView = () => {
     })
   }
 
-  const get_Status = (e : any) => {
-    setIndex(e);
+  let w;
+
+  const get_Status = (status : any) => {
+    console.log("========== status ===========", status)
+    setIndex(status);
   }
 
   
@@ -497,7 +500,7 @@ export const WalletView = () => {
   return (
     <Page title="Your Wallet | DigitalEyes">
       <div className="d-flex">
-        <SideBar /> 
+        <SideBar setStatus={get_Status} /> 
         <div className="mx-auto pt-10 px-4 sm:px-6 lg:px-8" style={{ width: "100vw" }}>
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {collectionsInWallet && (
@@ -605,6 +608,7 @@ export const WalletView = () => {
                 )}
               </BaseDiv>
               <BaseDiv value={1}>
+                llllll
                 <div className="pt-16 sm:pt-12 mb-10">
                   <div className="relative text-center">
                     {/* <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
@@ -690,6 +694,7 @@ export const WalletView = () => {
                 )}
               </BaseDiv>
               <BaseDiv value={2}>
+                ooooo
                 <div className="pt-16 sm:pt-12 mb-10">
                   <div className="relative text-center">
                     {/* <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
@@ -734,6 +739,7 @@ export const WalletView = () => {
                 )}
               </BaseDiv>
               <BaseDiv value={3}>
+                ppppp
                 <div className="pt-16 sm:pt-12 mb-10">
                   <div className="relative text-center">
                     {/* <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
