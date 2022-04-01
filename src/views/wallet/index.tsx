@@ -475,101 +475,29 @@ export const WalletView = () => {
     })
   }, [])
 
-  const [index, setIndex] = useState(0);
-
-  const Switch = (props:any) => {
+  const Switch = (props: any) => {
     const { test, children } = props
-    return children.find((child:any) => {
+    return children.find((child: any) => {
       return child.props.value === test
     })
   }
 
-  const BaseDiv = (prop : any ) => <div> {prop.children}
-     </div>
+  const get_Status = (e : any) => {
+    setIndex(e);
+  }
+
+  
+  const [index, setIndex] = useState(0);
+
+  const BaseDiv = (prop: any) =>
+    <div>
+      {prop.children}
+    </div>
 
   return (
     <Page title="Your Wallet | DigitalEyes">
       <div className="d-flex">
-        {/* <SideBar /> */}
-        {menuCollapse ?
-          <ProSidebar 
-            className="col-2 col-md-3 col-sm-12">
-
-            <SidebarHeader
-              style={{
-                padding: 40,
-              }}>
-              <div className="sidebar-header1">
-                <div>
-                  Your Wallet
-                </div>
-                <div className="sidebar-header2 mt-2">
-                  Call Dai
-                </div>
-                <div className="sidebar-header3 mt-2">
-                  Total Floor Value
-                </div>
-              </div>
-              <div className="closemenu" onClick={menuIconClick}>
-                {/* changing menu collapse icon on click */}
-                {menuCollapse ? (
-                  <i className="fa fa-arrow-circle-left"></i>
-                ) : (
-                  <i className="fa fa-arrow-circle-right"></i>
-                )}
-              </div>
-            </SidebarHeader>
-
-            <SidebarContent
-              style={{
-                padding: 20,
-                color: "white"
-              }}
-            >
-              <Menu {...tab}>
-                <MenuItem onClick={()=>{setIndex(0)}}> Owned NFTs </MenuItem>
-                <MenuItem onClick={()=>{setIndex(1)}}> Listed NFTs </MenuItem>
-                {/* <MenuItem><a onClick={()=>{setOfferState('Offer Received')}}> Offers Received </a> </MenuItem>
-                    <MenuItem ><a onClick={()=>{setOfferState('Offer Made')}}> Offers Made </a></MenuItem> */}
-                <MenuItem onClick={()=>{setIndex(2)}}> Live Domain Bids </MenuItem>
-                {/* <MenuItem> Creations </MenuItem> */}
-                <MenuItem onClick={()=>{setIndex(3)}}> Activities </MenuItem>
-              </Menu>
-            </SidebarContent>
-
-
-            {/* <SidebarFooter
-                style={{
-                    textAlign: "center",
-                    padding: 20,
-                    color: "white"
-                }}>
-                <div>
-                    <p
-                        style={{
-                            textTransform: "uppercase",
-                            marginBottom: "20px"
-                        }}>
-                        Bidding Account
-                    </p>
-                    <p> Balance &nbsp; &nbsp; 20 SOL</p>
-                    <button className = "sidebar-btn">Deposit</button>
-                    <button className = "sidebar-btn">Withdraw</button>
-                </div>
-            </SidebarFooter> */}
-          </ProSidebar >
-          :
-          <div className="small-sidebar">
-            <div className="closemenu" onClick={menuIconClick}>
-              {/* changing menu collapse icon on click */}
-              {menuCollapse ? (
-                <i className="fa fa-arrow-circle-left"></i>
-              ) : (
-                <i className="fa fa-arrow-circle-right"></i>
-              )}
-            </div>
-          </div>
-        }
+        <SideBar /> 
         <div className="mx-auto pt-10 px-4 sm:px-6 lg:px-8" style={{ width: "100vw" }}>
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {collectionsInWallet && (
@@ -612,8 +540,8 @@ export const WalletView = () => {
               </div>
             )}
 
-            <Switch test = { index }>
-              <BaseDiv value = {0}>
+            <Switch test={index}>
+              <BaseDiv value={0}>
                 <div className="pt-16 sm:pt-12 mb-10">
                   <div className="relative text-center">
                     {/* <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
@@ -676,10 +604,9 @@ export const WalletView = () => {
                   <ConnectMessage />
                 )}
               </BaseDiv>
-              <BaseDiv value = {1}>
+              <BaseDiv value={1}>
                 <div className="pt-16 sm:pt-12 mb-10">
                   <div className="relative text-center">
-                    <h1 className="h1">Your Listed NFTs</h1>
                     {/* <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
                       {wallet?.domainNames
                         ? getDomainList(wallet?.domainNames)
@@ -762,10 +689,9 @@ export const WalletView = () => {
                   <ConnectMessage />
                 )}
               </BaseDiv>
-              <BaseDiv value = {2}>
+              <BaseDiv value={2}>
                 <div className="pt-16 sm:pt-12 mb-10">
                   <div className="relative text-center">
-                    <h1 className="h1">Your live bids</h1>
                     {/* <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
                       {wallet?.domainNames
                         ? getDomainList(wallet?.domainNames)
@@ -807,10 +733,9 @@ export const WalletView = () => {
                   <ConnectMessage />
                 )}
               </BaseDiv>
-              <BaseDiv value = {3}>
+              <BaseDiv value={3}>
                 <div className="pt-16 sm:pt-12 mb-10">
                   <div className="relative text-center">
-                    <h1 className="h1">Your Live Auctions</h1>
                     {/* <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
                       {wallet?.domainNames
                         ? getDomainList(wallet?.domainNames)
