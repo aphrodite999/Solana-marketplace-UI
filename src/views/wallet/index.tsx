@@ -32,6 +32,7 @@ import { SideBar } from "../../components/SideBar"
 import "../../components/SideBar/style.css"
 
 
+
 export const WalletView = () => {
   const connection = useConnection()
   const { connected, wallet } = useWallet()
@@ -434,7 +435,7 @@ export const WalletView = () => {
     <Page title="Your Wallet | DigitalEyes">
       <div className = "d-flex"> 
         <SideBar />
-        <div className="mx-auto pt-10 px-4 sm:px-6 lg:px-8 col-lg-8">
+        <div className="mx-auto pt-10 px-4 sm:px-6 lg:px-8" style = {{ width: "100vw" }}>
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {collectionsInWallet && (
               <div className="flex justify-between">
@@ -476,17 +477,36 @@ export const WalletView = () => {
               </div>
             )}
 
+            <div
+              id="wallet-nav"
+              className="flex justify-center text-sm uppercase"
+           >
+              <TabList {...tab} aria-label="Wallet Tabs"  style = {{display: "none"}}>
+                <Tab {...tab} id="wallet">
+                  Wallet
+                </Tab>
+                <Tab {...tab} id="listed">
+                  Listed NFTs
+                </Tab>
+                <Tab {...tab} id="bids">
+                  Live bids
+                </Tab>
+                <Tab {...tab} id="auctions">
+                  Live Auctions
+                </Tab>
+              </TabList>
+            </div>
             <TabPanel {...tab} style={{}}>
               <>
                 <div className="pt-16 sm:pt-12 mb-10">
                   <div className="relative text-center">
-                    <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
+                    {/* <p className="wallet-key text-gray-400 mt-2 capitalize mx-auto w-5/6 text-sm leading-loose">
                       {wallet?.domainNames
                         ? getDomainList(wallet?.domainNames)
                         : wallet?.publicKey
                         ? `${shortenAddress(wallet?.publicKey.toString())}`
                         : ""}
-                    </p>
+                    </p> */}
                   </div>
                 </div>
                 {connected ? (
@@ -749,9 +769,6 @@ export const WalletView = () => {
               </>
             </TabPanel>
           </div>
-        </div>
-        <div className = "col-lg-2">
-                  
         </div>
       </div>
     </Page>

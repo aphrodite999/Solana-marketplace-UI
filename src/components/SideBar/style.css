@@ -97,8 +97,28 @@
         width: 270px;
         min-width: 270px;
         text-align: left;
-        z-index: 0;
+        z-index: 0 !important;
         height: initial;
+    }
+
+    .closemenu {
+        color: #000;
+        position: absolute;
+        right: 0;
+        z-index: 9999;
+        line-height: 20px;
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 22px;
+        top: 55px;
+        cursor: pointer;
+      }
+
+    .closemenu i {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        color: white;
     }
 
     .pro-sidebar-content {
@@ -107,4 +127,22 @@
 
     .pro-sidebar > .pro-sidebar-inner {
         background-color: black!important;
+    }
+
+    .small-sidebar {
+        border-right: solid 1px #4E957C;
+        min-height: 80vh;
+        background-color: black;
+        width: 30px;
+        text-align: left;
+        z-index: 0;
+        height: initial;
+        position: fixed!important;
+    }
+
+    @media only screen and (max-width: 768px) {
+       .pro-sidebar {
+           z-index: 3!important;
+           margin-right: -1000px;
+       }
     }
